@@ -1,0 +1,19 @@
+body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+textarea {
+    height: 30vh;
+
+    font-size: x-large;
+
+    background: white;
+    color: black;
+
+    border-style: solid;
+    border-width: 2px;
+
+    cursor: text;
+}
