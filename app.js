@@ -34,19 +34,36 @@ init().then(async () => {
     preeti.value = res;
   });
 
-  document.getElementById("bruh").addEventListener("change", async (e) => {
-    let file = await e.target.files[0].arrayBuffer();
+  let handle_conversion = async (file) => {
     let buf = preeti_to_unicode_docx(new Uint8Array(file));
 
-    let res = new File([new Uint8Array(buf)], e.target.files[0].name, {
+    let res = new File([new Uint8Array(buf)], file.name, {
       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     });
     let url = URL.createObjectURL(res);
 
-    let download_el = document.createElement("a");
+    let download_el = document.getElementById("download");
     download_el.href = url;
     download_el.download = res.name;
     download_el.textContent = "Download converted file";
-    document.querySelector("body").append(download_el);
+
+    document.getElementById("container").style.setProperty("display", "none");
+    download_el.hidden = false;
+  };
+
+  document
+    .getElementById("file_select")
+    .addEventListener("input", async (e) => {
+      let file = await e.target.files[0].arrayBuffer();
+      await handle_conversion(file);
+    });
+
+  document.getElementById("container").addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
+
+  document.getElementById("container").addEventListener("drop", async (e) => {
+    e.preventDefault();
+    await handle_conversion(await e.dataTransfer.files[0].arrayBuffer());
   });
 });
