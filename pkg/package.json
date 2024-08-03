@@ -1,0 +1,15 @@
+{
+  "name": "preeti_client",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "preeti_client_bg.wasm",
+    "preeti_client.js",
+    "preeti_client.d.ts"
+  ],
+  "main": "preeti_client.js",
+  "types": "preeti_client.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
