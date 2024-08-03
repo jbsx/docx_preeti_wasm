@@ -5,6 +5,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
 console_error_panic_hook = "0.1.7"
 wasm-bindgen = "0.2"
@@ -12,3 +15,9 @@ htmlescape = "0.3.1"
 regex = "1.10.2"
 serde = {version="1.0.192", features = ["derive"]}
 serde_json = "1.0.108"
+quick-xml = "0.31.0"
+
+[dependencies.zip]
+version = "2.1.5"
+default-features = false
+features = ["deflate"]
