@@ -2,7 +2,7 @@ import init, {
   init as bruh,
   preeti_to_unicode,
   preeti_to_unicode_docx,
-} from "/pkg/preeti_client.js";
+} from "./pkg/preeti_client.js";
 
 init().then(async () => {
   bruh();
