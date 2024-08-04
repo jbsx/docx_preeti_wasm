@@ -7,6 +7,7 @@ use std::{io::Read, panic};
 use wasm_bindgen::prelude::*;
 
 use htmlescape::decode_html;
+use once_cell::sync::Lazy;
 use quick_xml::events::{BytesStart, BytesText, Event};
 use quick_xml::name::QName;
 use quick_xml::reader::Reader;
@@ -18,9 +19,18 @@ extern crate console_error_panic_hook;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Map {
+    pre_rules: Vec<Vec<String>>,
     character_map: HashMap<String, String>,
     post_rules: Vec<Vec<String>>,
 }
+
+static PREETI_RULES: Lazy<Map> = Lazy::new(|| {
+    return serde_json::from_str(std::include_str!("preeti.json")).unwrap();
+});
+
+static UNICODE_RULES: Lazy<Map> = Lazy::new(|| {
+    return serde_json::from_str(std::include_str!("unicode.json")).unwrap();
+});
 
 #[wasm_bindgen]
 pub fn init() {
@@ -29,19 +39,17 @@ pub fn init() {
 
 #[wasm_bindgen]
 pub fn preeti_to_unicode(input: String) -> String {
-    let rules: Map = serde_json::from_str(std::include_str!("preeti.json")).unwrap();
-
     //normalise html entities
     let normalised_input = decode_html(&input).unwrap_or(input);
 
     //convert
     let mut res = String::new();
     for i in normalised_input.split("") {
-        res.push_str(rules.character_map.get(i).unwrap_or(&i.to_owned()));
+        res.push_str(&PREETI_RULES.character_map.get(i).unwrap_or(&i.to_owned()));
     }
 
     //post rules
-    for i in &rules.post_rules {
+    for i in &PREETI_RULES.post_rules {
         let re = Regex::new(&i[0]).unwrap();
         res = re.replace_all(&res, &i[1]).to_string();
     }
@@ -142,4 +150,24 @@ fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
 
     let converted_file = writer.into_inner().into_inner();
     return Ok(converted_file);
+}
+
+#[wasm_bindgen]
+pub fn unicode_to_preeti(input: String) -> String {
+    //normalise html entities
+    let normalised_input = decode_html(&input).unwrap_or(input);
+
+    //convert
+    let mut res = String::new();
+    for i in normalised_input.split("") {
+        res.push_str(UNICODE_RULES.character_map.get(i).unwrap_or(&i.to_owned()));
+    }
+
+    //post rules
+    for i in &UNICODE_RULES.post_rules {
+        let re = Regex::new(&i[0]).unwrap();
+        res = re.replace_all(&res, &i[1]).to_string();
+    }
+
+    return res;
 }
