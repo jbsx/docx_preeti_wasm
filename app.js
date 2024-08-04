@@ -35,35 +35,41 @@ init().then(async () => {
   });
 
   let handle_conversion = async (file) => {
-    let buf = preeti_to_unicode_docx(new Uint8Array(file));
+    let buf = preeti_to_unicode_docx(new Uint8Array(await file.arrayBuffer()));
 
     let res = new File([new Uint8Array(buf)], file.name, {
       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     });
     let url = URL.createObjectURL(res);
-
-    let download_el = document.getElementById("download");
+    let download_el = document.createElement("a");
+    console.log(file);
     download_el.href = url;
-    download_el.download = res.name;
+    download_el.download = file.name;
     download_el.textContent = "Download converted file";
 
-    document.getElementById("container").style.setProperty("display", "none");
-    download_el.hidden = false;
+    document.getElementById("input-label").classList.add("hidden");
+    download_el.classList.add(
+      ..."flex justify-center items-center w-[20vw] h-20 bg-blue-200 border-2 rounded-xl border-blue-400 hover:bg-blue-300".split(
+        " ",
+      ),
+    );
+
+    document.getElementById("container").append(download_el);
   };
 
   document
     .getElementById("file_select")
-    .addEventListener("input", async (e) => {
-      let file = await e.target.files[0].arrayBuffer();
+    .addEventListener("change", async (e) => {
+      let file = e.target.files[0];
       await handle_conversion(file);
     });
 
-  document.getElementById("container").addEventListener("dragover", (e) => {
+  document.getElementById("input-label").addEventListener("dragover", (e) => {
     e.preventDefault();
   });
 
-  document.getElementById("container").addEventListener("drop", async (e) => {
+  document.getElementById("input-label").addEventListener("drop", async (e) => {
     e.preventDefault();
-    await handle_conversion(await e.dataTransfer.files[0].arrayBuffer());
+    await handle_conversion(e.dataTransfer.files[0]);
   });
 });
