@@ -161,7 +161,6 @@ pub fn unicode_to_preeti(input: String) -> String {
     for i in &UNICODE_RULES.pre_rules {
         let re = Regex::new(&i[0]).unwrap();
         normalised_input = re.replace_all(&normalised_input, &i[1]).to_string();
-        println!("{}", &normalised_input);
     }
 
     //convert
