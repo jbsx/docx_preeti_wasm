@@ -155,7 +155,14 @@ fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
 #[wasm_bindgen]
 pub fn unicode_to_preeti(input: String) -> String {
     //normalise html entities
-    let normalised_input = decode_html(&input).unwrap_or(input);
+    let mut normalised_input = decode_html(&input).unwrap_or(input);
+
+    //pre rules
+    for i in &UNICODE_RULES.pre_rules {
+        let re = Regex::new(&i[0]).unwrap();
+        normalised_input = re.replace_all(&normalised_input, &i[1]).to_string();
+        println!("{}", &normalised_input);
+    }
 
     //convert
     let mut res = String::new();
