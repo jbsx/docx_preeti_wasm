@@ -58,26 +58,6 @@ mod test_unicode_converter {
     use crate::unicode_to_preeti;
 
     #[test]
-    fn post_rules() {
-        let test_string = "नेपाल".to_owned();
-        let control = "g]kfn".to_owned();
-
-        let converted = unicode_to_preeti(test_string);
-
-        assert_eq!(converted, control);
-    }
-
-    #[test]
-    fn post_rules2() {
-        let test_string = "नेपाली".to_owned();
-        let control = "g]kfnL".to_owned();
-
-        let converted = unicode_to_preeti(test_string);
-
-        assert_eq!(converted, control);
-    }
-
-    #[test]
     fn temp_test() {
         let test_string = "ट्रक".to_owned();
         let control = "6«s".to_owned();
@@ -101,6 +81,26 @@ mod test_unicode_converter {
     fn temp_test3() {
         let test_string = "खुट्टा".to_owned();
         let control = "v'§f".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn post_rules() {
+        let test_string = "नेपाल".to_owned();
+        let control = "g]kfn".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn post_rules2() {
+        let test_string = "नेपाली".to_owned();
+        let control = "g]kfnL".to_owned();
 
         let converted = unicode_to_preeti(test_string);
 

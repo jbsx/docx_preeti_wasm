@@ -1,11 +1,12 @@
 mod tests;
 
+use wasm_bindgen::prelude::*;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io::{Cursor, Write};
 use std::{io::Read, panic};
-use wasm_bindgen::prelude::*;
 
+use anyhow::Result;
 use htmlescape::decode_html;
 use once_cell::sync::Lazy;
 use quick_xml::events::{BytesStart, BytesText, Event};
@@ -155,7 +156,7 @@ fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
 #[wasm_bindgen]
 pub fn unicode_to_preeti(input: String) -> String {
     //normalise html entities
-    let mut normalised_input = decode_html(&input).unwrap_or(input);
+    let mut normalised_input: String = decode_html(&input).unwrap_or(input);
 
     //pre rules
     for i in &UNICODE_RULES.pre_rules {
@@ -165,8 +166,156 @@ pub fn unicode_to_preeti(input: String) -> String {
 
     //convert
     let mut res = String::new();
-    for i in normalised_input.split("") {
-        res.push_str(UNICODE_RULES.character_map.get(i).unwrap_or(&i.to_owned()));
+    let mut idx = 0;
+    let chars = normalised_input.chars().collect::<Vec<char>>();
+
+    while idx < chars.len() {
+        let curr = chars[idx];
+
+        if idx < chars.len() - 1{
+            if chars[idx + 1] == 'ि'{
+                if curr == 'q'{
+                    res.push_str("lq");
+                } else {
+                    match UNICODE_RULES.character_map.get(&curr.to_string()){
+                        Some(t) => {
+                            res.push_str(&format!("l{}", t));
+                        }
+                        None => {
+                            res.push_str(&curr.to_string());
+                        }
+                    }
+                }
+                idx += 1;
+                continue;
+            }
+
+            if idx < chars.len() - 2{
+                if chars[idx + 2] == 'ि'{
+                    if "WERTYUXASDGHJK:ZVN".contains(curr){
+                        match UNICODE_RULES.character_map.get(&chars[idx+1].to_string()) {
+                            Some(t) =>{
+                                if t != "q"{
+                                    match UNICODE_RULES.character_map.get(&chars[idx+1].to_string()){
+                                        Some(t) => {
+                                            res.push_str(&format!("l{}{}", curr, t));
+                                        },
+                                        None => {
+                                            res.push_str(&curr.to_string());
+                                            idx += 1;
+                                            continue;
+                                        }
+                                    }
+                                } else {
+                                    res.push_str(&format!("l{}{}", curr, chars[idx + 1]));
+                                }
+                                idx += 2;
+                                continue;
+                            }
+                            None =>{
+                                res.push_str(&curr.to_string());
+                                idx += 1;
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                if idx < chars.len() - 3 {
+                    if chars[idx + 1] == '्'  && curr == 'र' {
+                        if chars[idx+3]=='ा' || chars[idx+3]=='ो' || chars[idx+3]=='ौ' || chars[idx+3]=='े' || chars[idx+3]=='ै'  || chars[idx+3]=='ी'{
+                            match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
+                                Some(p2) =>{
+                                    match UNICODE_RULES.character_map.get(&chars[idx + 3].to_string()) {
+                                        Some(p3) =>{
+                                            res.push_str(&format!("{}{}{{", p2, p3) );
+                                            idx += 3;
+                                            continue;
+                                        }
+                                        None =>{
+                                            res.push_str(&curr.to_string());
+                                            idx += 1;
+                                            continue;
+                                        }
+                                    }
+                                }
+                                None =>{
+                                    res.push_str(&curr.to_string());
+                                    idx += 1;
+                                    continue;
+                                }
+                            }
+                        } else if chars[idx + 3] == 'ि'{
+                            match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
+                                Some(p2) =>{
+                                    match UNICODE_RULES.character_map.get(&chars[idx + 3].to_string()) {
+                                        Some(p3) =>{
+                                            res.push_str(&format!("{}{}{{", p3, p2) );
+                                            idx += 3;
+                                            continue;
+                                        }
+                                        None =>{
+                                            res.push_str(&curr.to_string());
+                                            idx += 1;
+                                            continue;
+                                        }
+                                    }
+                                }
+                                None =>{
+                                    res.push_str(&curr.to_string());
+                                    idx += 1;
+                                    continue;
+                                }
+                            }
+                        }
+
+                        match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()){
+                            Some(t)=>{
+                                res.push_str(&format!("{}{{", t));
+                                idx += 2;
+                                continue;
+                            }
+                            None => {
+                                res.push_str(&curr.to_string());
+                                idx += 1;
+                                continue;
+                            }
+                        }
+                    }
+
+                    if chars[idx + 3] == 'ि'{
+                        if chars[idx + 2] == '|' || chars[idx + 2] == '«'{
+                            if "WERTYUXASDGHJK:ZVNIi".contains(curr){
+                                match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()){
+                                    Some(t)=>{
+                                        res.push_str(&format!("l{}{}", t, &chars[idx + 2]));
+                                        idx += 3;
+                                        continue;
+                                    }
+                                    None=>{
+                                        res.push_str(&curr.to_string());
+                                        idx += 1;
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    idx += 1;
+                }
+            }
+        }
+        match UNICODE_RULES.character_map.get(&curr.to_string()){
+            Some(t)=>{
+                res.push_str(t);
+            }
+            None=>{
+                res.push_str(&curr.to_string());
+            }
+        }
+        idx += 1;
+
     }
 
     //post rules
