@@ -1,4 +1,4 @@
-//mod tests;
+mod tests;
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -206,10 +206,12 @@ pub fn unicode_to_preeti(input: String) -> String {
                         }
                         None => {
                             res.push_str(&curr.to_string());
+                            idx += 1;
+                            continue;
                         }
                     }
                 }
-                idx += 1;
+                idx += 2;
                 continue;
             }
 
@@ -351,8 +353,6 @@ pub fn unicode_to_preeti(input: String) -> String {
             }
         }
         idx += 1;
-
-        //println!("{:?} --- {}", curr, &res);
     }
 
     //post rules

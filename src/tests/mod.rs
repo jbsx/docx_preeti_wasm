@@ -69,6 +69,46 @@ mod test_unicode_converter {
         assert_eq!(converted, control);
     }
 
+    #[test]
+    fn temp_test00() {
+        let test_string = "स्वस्थ".to_owned();
+        let control = ":j:y".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn temp_test01() {
+        let test_string = "सिकिस्त".to_owned();
+        let control = "l;ls:t".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn temp_test02() {
+        let test_string = "प्रिय".to_owned();
+        let control = "k|lo".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn temp_test03() {
+        let test_string = "प्रिय मानव, मलाइ थाहा छ उता तिमी स्वस्थ छैनौं एता म पनि सिकिस्त बिरामी परेकि छु जताततै गाडी र कलकारखानाको बिषालु धुंवामा रूमलिएका मेरा धड्कनहरु बिस्तारैबिस्तारै अस्पतालका विस्तारामा पुगे उता तिमीहरुको जीवनशैली र मिसावटयुत्त आहारले पटकपटक अस्वस्थ हुनु आजभोलि म निकै चिंतित रहेकी छु आशा विहिन पनि भएकी छु" .to_owned();
+        let control = "k|lo dfgj, dnfO yfxf 5 ptf ltdL :j:y 5}gf}+ Ptf d klg l;ls:t la/fdL k/]ls 5' htftt} uf8L / snsf/vfgfsf] laiffn' w'+jfdf ¿dlnPsf d]/f w8\\sgx? la:tf/}la:tf/} c:ktfnsf lj:tf/fdf k'u] ptf ltdLx?sf] hLjgz}nL / ld;fj6o'Q cfxf/n] k6sk6s c:j:y x'g' cfhef]ln d lgs} lr+ltt /x]sL 5' cfzf ljlxg klg ePsL 5'" .to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
     //#[test]
     //fn temp_test2() {
     //    let test_string = "क्रम".to_owned();
