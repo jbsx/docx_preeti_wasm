@@ -7,10 +7,10 @@ import init, {
 init().then(async () => {
   bruh();
 
-  let unicode = document.getElementById("unicode");
   let preeti = document.getElementById("preeti");
+  let unicode = document.getElementById("unicode");
 
-  unicode.addEventListener("keyup", (e) => {
+  preeti.addEventListener("keyup", (e) => {
     let val = e.target.value;
     let res = val
       .split("\n")
@@ -19,10 +19,10 @@ init().then(async () => {
       })
       .join("\n");
 
-    preeti.value = res;
+    unicode.value = res;
   });
 
-  unicode.addEventListener("keydown", (e) => {
+  preeti.addEventListener("keydown", (e) => {
     let val = e.target.value;
     let res = val
       .split("\n")
@@ -31,7 +31,7 @@ init().then(async () => {
       })
       .join("\n");
 
-    preeti.value = res;
+    unicode.value = res;
   });
 
   let handle_conversion = async (file) => {

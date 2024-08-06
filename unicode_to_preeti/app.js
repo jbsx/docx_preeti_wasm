@@ -1,7 +1,7 @@
 import init, {
   init as bruh,
-  preeti_to_unicode,
-  preeti_to_unicode_docx,
+  unicode_to_preeti,
+  unicode_to_preeti_docx,
 } from "../pkg/preeti_client.js";
 
 init().then(async () => {
@@ -15,7 +15,7 @@ init().then(async () => {
     let res = val
       .split("\n")
       .map((i) => {
-        return preeti_to_unicode(i);
+        return unicode_to_preeti(i);
       })
       .join("\n");
 
@@ -27,7 +27,7 @@ init().then(async () => {
     let res = val
       .split("\n")
       .map((i) => {
-        return preeti_to_unicode(i);
+        return unicode_to_preeti(i);
       })
       .join("\n");
 
@@ -35,7 +35,7 @@ init().then(async () => {
   });
 
   let handle_conversion = async (file) => {
-    let buf = preeti_to_unicode_docx(new Uint8Array(await file.arrayBuffer()));
+    let buf = unicode_to_preeti_docx(new Uint8Array(await file.arrayBuffer()));
 
     let res = new File([new Uint8Array(buf)], file.name, {
       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

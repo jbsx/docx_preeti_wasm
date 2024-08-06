@@ -3,33 +3,22 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Preeti to Unicode</title>
+    <title>Preeti Conversion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="app.js"></script>
 </head>
 
-<body class="w-full flex flex-col items-center bg-slate-100">
-    <div id="container" class="flex flex-col items-center">
-        <h1 class="m-5 text-3xl">Convert .docx from Preeti to Unicode (UTF-8)</h1>
-        <div id="input-label">
-            <label for="file_select" class="bg-blue-200 w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
-                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-blue-400">
-                <input id="file_select" type="file" hidden
-                    accept="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-                <div class="flex flex-col justify-center items-center gap-8">
-                    <img src="upload_icon.png" class="w-[20%] pointer-events-none" />
-                    <p class="text-center">
-                        Drag and drop or click here <br /> to convert .docx file
-                    </p>
-                </div>
-            </label>
-        </div>
-    </div>
-    <div class="w-[90vw]">
-        <h3>Unicode</h3>
-        <textarea id="unicode" class="w-full min-h-[25vh] p-[5px] bg-white border-2 outline-none"></textarea>
-        <h3>Preeti</h3>
-        <textarea id="preeti" class="w-full min-h-[25vh] p-[5px] bg-white border-2" disabled></textarea>
+<body class="w-full flex flex-col justify-center items-center bg-slate-100">
+    <h1 class="m-5 text-3xl">
+        Convert word files between Preeti and Unicode(UTF-8)
+    </h1>
+    <div class="flex flex-col gap-8">
+        <a href="preeti_to_unicode/" class="flex justify-center items-center w-[20vw] h-20 
+                bg-blue-200 border-2 rounded-xl border-blue-400 cursor-pointer 
+                hover:bg-blue-300">Preeti to Unicode</a>
+        <a href="unicode_to_preeti/" class="flex justify-center items-center w-[20vw] h-20
+                bg-blue-200 border-2 rounded-xl border-blue-400 cursor-pointer
+                hover:bg-blue-300">Unicode to Preeti</a>
     </div>
 </body>
 

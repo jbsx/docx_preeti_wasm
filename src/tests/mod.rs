@@ -57,6 +57,8 @@ mod test_preeti_converter {
 mod test_unicode_converter {
     use crate::unicode_to_preeti;
 
+    //TODO: test coverage
+
     #[test]
     fn temp_test() {
         let test_string = "ट्रक".to_owned();

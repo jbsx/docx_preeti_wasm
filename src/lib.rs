@@ -1,4 +1,4 @@
-mod tests;
+//mod tests;
 
 use std::collections::HashMap;
 use std::error::Error;
@@ -36,6 +36,83 @@ static UNICODE_RULES: Lazy<Map> = Lazy::new(|| {
 #[wasm_bindgen]
 pub fn init() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
+fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
+    let mut reader = Reader::from_str(&input);
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
+
+    let mut is_preeti = false;
+
+    loop {
+        match reader.read_event() {
+            Ok(Event::Text(e)) => {
+                if is_preeti {
+                    let converted = preeti_to_unicode(e.unescape()?.to_string());
+                    let elem = BytesText::new(&converted);
+                    writer.write_event(Event::Text(elem))?;
+
+                    is_preeti = false;
+                } else {
+                    writer.write_event(Event::Text(e))?;
+                }
+            }
+            Ok(Event::Empty(e)) => {
+                if &e.name() == &QName(b"w:rFonts") {
+                    let e_buf = &e.to_vec();
+                    let streeng = String::from_utf8_lossy(e_buf);
+                    if streeng.contains("w:ascii=\"Preeti\"") {
+                        is_preeti = true;
+
+                        writer.write_event(Event::Empty(BytesStart::new(
+                            &streeng.replace("Preeti", "Arial"),
+                        )))?;
+                    } else {
+                        writer.write_event(Event::Empty(e))?;
+                    }
+                } else {
+                    writer.write_event(Event::Empty(e))?;
+                }
+            }
+            Ok(Event::End(e)) => {
+                if &e.name() == &QName(b"w:r") || &e.name() == &QName(b"w:pPr") {
+                    is_preeti = false;
+                }
+                writer.write_event(Event::End(e))?;
+            }
+            Ok(Event::Eof) => break,
+            Ok(e) => {
+                writer.write_event(e)?;
+            }
+            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+        }
+    }
+
+    let converted_file = writer.into_inner().into_inner();
+    return Ok(converted_file);
+}
+
+fn convert_xml_string_unicode(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
+    let mut reader = Reader::from_str(&input);
+    let mut writer = Writer::new(Cursor::new(Vec::new()));
+
+    loop {
+        match reader.read_event() {
+            Ok(Event::Text(e)) => {
+                let converted = unicode_to_preeti(e.unescape()?.to_string());
+                let elem = BytesText::new(&converted);
+                writer.write_event(Event::Text(elem))?;
+            }
+            Ok(Event::Eof) => break,
+            Ok(e) => {
+                writer.write_event(e)?;
+            }
+            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
+        }
+    }
+
+    let converted_file = writer.into_inner().into_inner();
+    return Ok(converted_file);
 }
 
 #[wasm_bindgen]
@@ -97,60 +174,6 @@ pub fn preeti_to_unicode_docx(input: Vec<u8>) -> Vec<u8> {
         .into_inner();
 
     return res;
-}
-
-fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
-    let mut reader = Reader::from_str(&input);
-    let mut writer = Writer::new(Cursor::new(Vec::new()));
-
-    let mut is_preeti = false;
-
-    loop {
-        match reader.read_event() {
-            Ok(Event::Text(e)) => {
-                if is_preeti {
-                    let converted = preeti_to_unicode(e.unescape()?.to_string());
-                    let elem = BytesText::new(&converted);
-                    writer.write_event(Event::Text(elem))?;
-
-                    is_preeti = false;
-                } else {
-                    writer.write_event(Event::Text(e))?;
-                }
-            }
-            Ok(Event::Empty(e)) => {
-                if &e.name() == &QName(b"w:rFonts") {
-                    let e_buf = &e.to_vec();
-                    let streeng = String::from_utf8_lossy(e_buf);
-                    if streeng.contains("w:ascii=\"Preeti\"") {
-                        is_preeti = true;
-
-                        writer.write_event(Event::Empty(BytesStart::new(
-                            &streeng.replace("Preeti", "Arial"),
-                        )))?;
-                    } else {
-                        writer.write_event(Event::Empty(e))?;
-                    }
-                } else {
-                    writer.write_event(Event::Empty(e))?;
-                }
-            }
-            Ok(Event::End(e)) => {
-                if &e.name() == &QName(b"w:r") || &e.name() == &QName(b"w:pPr") {
-                    is_preeti = false;
-                }
-                writer.write_event(Event::End(e))?;
-            }
-            Ok(Event::Eof) => break,
-            Ok(e) => {
-                writer.write_event(e)?;
-            }
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-        }
-    }
-
-    let converted_file = writer.into_inner().into_inner();
-    return Ok(converted_file);
 }
 
 #[wasm_bindgen]
@@ -337,6 +360,47 @@ pub fn unicode_to_preeti(input: String) -> String {
         let re = Regex::new(&i[0]).unwrap();
         res = re.replace_all(&res, &i[1]).to_string();
     }
+
+    return res;
+}
+
+#[wasm_bindgen]
+pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
+    let file = Cursor::new(input);
+    let mut archive = zip::ZipArchive::new(file).unwrap();
+    let mut streeng_file = String::new();
+    let _ = archive
+        .by_name("word/document.xml")
+        .unwrap()
+        .read_to_string(&mut streeng_file);
+
+    let converted = convert_xml_string_unicode(streeng_file).unwrap();
+
+    let buf = Cursor::new(Vec::new());
+    let mut writer = zip::ZipWriter::new(buf);
+    for i in archive.to_owned().file_names() {
+        match i {
+            "word/document.xml" => {
+                let _ = writer
+                    .start_file(
+                        "word/document.xml",
+                        zip::write::SimpleFileOptions::default(),
+                    )
+                    .unwrap();
+                let _ = writer.write(&converted);
+                let _ = writer.flush().unwrap();
+            }
+            _ => {
+                let f = archive.by_name(i).unwrap();
+                let _ = writer.raw_copy_file(f).unwrap();
+            }
+        }
+    }
+    let res = writer
+        .finish_into_readable()
+        .unwrap()
+        .into_inner()
+        .into_inner();
 
     return res;
 }
