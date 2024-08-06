@@ -1,10 +1,10 @@
 mod tests;
 
-use wasm_bindgen::prelude::*;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io::{Cursor, Write};
 use std::{io::Read, panic};
+use wasm_bindgen::prelude::*;
 
 use anyhow::Result;
 use htmlescape::decode_html;
@@ -172,12 +172,12 @@ pub fn unicode_to_preeti(input: String) -> String {
     while idx < chars.len() {
         let curr = chars[idx];
 
-        if idx < chars.len() - 1{
-            if chars[idx + 1] == 'ि'{
-                if curr == 'q'{
+        if idx < chars.len() - 1 {
+            if chars[idx + 1] == 'ि' {
+                if curr == 'q' {
                     res.push_str("lq");
                 } else {
-                    match UNICODE_RULES.character_map.get(&curr.to_string()){
+                    match UNICODE_RULES.character_map.get(&curr.to_string()) {
                         Some(t) => {
                             res.push_str(&format!("l{}", t));
                         }
@@ -190,16 +190,19 @@ pub fn unicode_to_preeti(input: String) -> String {
                 continue;
             }
 
-            if idx < chars.len() - 2{
-                if chars[idx + 2] == 'ि'{
-                    if "WERTYUXASDGHJK:ZVN".contains(curr){
-                        match UNICODE_RULES.character_map.get(&chars[idx+1].to_string()) {
-                            Some(t) =>{
-                                if t != "q"{
-                                    match UNICODE_RULES.character_map.get(&chars[idx+1].to_string()){
+            if idx < chars.len() - 2 {
+                if chars[idx + 2] == 'ि' {
+                    if "WERTYUXASDGHJK:ZVN".contains(curr) {
+                        match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()) {
+                            Some(t) => {
+                                if t != "q" {
+                                    match UNICODE_RULES
+                                        .character_map
+                                        .get(&chars[idx + 1].to_string())
+                                    {
                                         Some(t) => {
                                             res.push_str(&format!("l{}{}", curr, t));
-                                        },
+                                        }
                                         None => {
                                             res.push_str(&curr.to_string());
                                             idx += 1;
@@ -212,7 +215,7 @@ pub fn unicode_to_preeti(input: String) -> String {
                                 idx += 2;
                                 continue;
                             }
-                            None =>{
+                            None => {
                                 res.push_str(&curr.to_string());
                                 idx += 1;
                                 continue;
@@ -222,46 +225,58 @@ pub fn unicode_to_preeti(input: String) -> String {
                 }
 
                 if idx < chars.len() - 3 {
-                    if chars[idx + 1] == '्'  && curr == 'र' {
-                        if chars[idx+3]=='ा' || chars[idx+3]=='ो' || chars[idx+3]=='ौ' || chars[idx+3]=='े' || chars[idx+3]=='ै'  || chars[idx+3]=='ी'{
+                    if chars[idx + 1] == '्' && curr == 'र' {
+                        if chars[idx + 3] == 'ा'
+                            || chars[idx + 3] == 'ो'
+                            || chars[idx + 3] == 'ौ'
+                            || chars[idx + 3] == 'े'
+                            || chars[idx + 3] == 'ै'
+                            || chars[idx + 3] == 'ी'
+                        {
                             match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
-                                Some(p2) =>{
-                                    match UNICODE_RULES.character_map.get(&chars[idx + 3].to_string()) {
-                                        Some(p3) =>{
-                                            res.push_str(&format!("{}{}{{", p2, p3) );
+                                Some(p2) => {
+                                    match UNICODE_RULES
+                                        .character_map
+                                        .get(&chars[idx + 3].to_string())
+                                    {
+                                        Some(p3) => {
+                                            res.push_str(&format!("{}{}{{", p2, p3));
                                             idx += 3;
                                             continue;
                                         }
-                                        None =>{
+                                        None => {
                                             res.push_str(&curr.to_string());
                                             idx += 1;
                                             continue;
                                         }
                                     }
                                 }
-                                None =>{
+                                None => {
                                     res.push_str(&curr.to_string());
                                     idx += 1;
                                     continue;
                                 }
                             }
-                        } else if chars[idx + 3] == 'ि'{
+                        } else if chars[idx + 3] == 'ि' {
                             match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
-                                Some(p2) =>{
-                                    match UNICODE_RULES.character_map.get(&chars[idx + 3].to_string()) {
-                                        Some(p3) =>{
-                                            res.push_str(&format!("{}{}{{", p3, p2) );
+                                Some(p2) => {
+                                    match UNICODE_RULES
+                                        .character_map
+                                        .get(&chars[idx + 3].to_string())
+                                    {
+                                        Some(p3) => {
+                                            res.push_str(&format!("{}{}{{", p3, p2));
                                             idx += 3;
                                             continue;
                                         }
-                                        None =>{
+                                        None => {
                                             res.push_str(&curr.to_string());
                                             idx += 1;
                                             continue;
                                         }
                                     }
                                 }
-                                None =>{
+                                None => {
                                     res.push_str(&curr.to_string());
                                     idx += 1;
                                     continue;
@@ -269,8 +284,8 @@ pub fn unicode_to_preeti(input: String) -> String {
                             }
                         }
 
-                        match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()){
-                            Some(t)=>{
+                        match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
+                            Some(t) => {
                                 res.push_str(&format!("{}{{", t));
                                 idx += 2;
                                 continue;
@@ -283,16 +298,16 @@ pub fn unicode_to_preeti(input: String) -> String {
                         }
                     }
 
-                    if chars[idx + 3] == 'ि'{
-                        if chars[idx + 2] == '|' || chars[idx + 2] == '«'{
-                            if "WERTYUXASDGHJK:ZVNIi".contains(curr){
-                                match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()){
-                                    Some(t)=>{
+                    if chars[idx + 3] == 'ि' {
+                        if chars[idx + 2] == '|' || chars[idx + 2] == '«' {
+                            if "WERTYUXASDGHJK:ZVNIi".contains(curr) {
+                                match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()) {
+                                    Some(t) => {
                                         res.push_str(&format!("l{}{}", t, &chars[idx + 2]));
                                         idx += 3;
                                         continue;
                                     }
-                                    None=>{
+                                    None => {
                                         res.push_str(&curr.to_string());
                                         idx += 1;
                                         continue;
@@ -301,21 +316,20 @@ pub fn unicode_to_preeti(input: String) -> String {
                             }
                         }
                     }
-
-                    idx += 1;
                 }
             }
         }
-        match UNICODE_RULES.character_map.get(&curr.to_string()){
-            Some(t)=>{
+        match UNICODE_RULES.character_map.get(&curr.to_string()) {
+            Some(t) => {
                 res.push_str(t);
             }
-            None=>{
+            None => {
                 res.push_str(&curr.to_string());
             }
         }
         idx += 1;
 
+        //println!("{:?} --- {}", curr, &res);
     }
 
     //post rules
