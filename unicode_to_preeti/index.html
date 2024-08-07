@@ -8,12 +8,13 @@
     <script type="module" src="app.js"></script>
 </head>
 
-<body class="w-full flex flex-col items-center bg-slate-100">
+<body class="w-full flex flex-col items-center bg-slate-100 gap-8">
     <div id="container" class="flex flex-col items-center">
-        <h1 class="m-5 text-3xl">Convert .docx from Unicode to Preeti (UTF-8)</h1>
-        <div id="input-label">
-            <label for="file_select" class="bg-blue-200 w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
-                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-blue-400">
+        <h1 class="m-5 text-3xl text-center">Convert .docx from Unicode to Preeti (UTF-8)</h1>
+        <div id="input-label" class="flex flex-col items-center gap-4">
+            <label for="file_select"
+                class="bg-blue-200 w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
+                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-blue-400 hover:opacity-[85%]">
                 <input id="file_select" type="file" hidden
                     accept="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <div class="flex flex-col justify-center items-center gap-8">
@@ -23,13 +24,21 @@
                     </p>
                 </div>
             </label>
+            <p class="text-xs text-center">Note: may cause unintentional conversion of symbols</p>
         </div>
+        <img id="loading" src="../loading.svg" hidden />
     </div>
-    <div class="w-[90vw]">
-        <h3>Unicode</h3>
-        <textarea id="unicode" class="w-full min-h-[25vh] p-[5px] bg-white border-2 outline-none"></textarea>
-        <h3>Preeti</h3>
-        <textarea id="preeti" class="w-full min-h-[25vh] p-[5px] bg-white border-2" disabled></textarea>
+    <div class="flex flex-wrap justify-center w-[90vw] gap-2">
+        <div>
+            <h3>Unicode</h3>
+            <textarea id="unicode"
+                class="w-full min-w-[400px] min-h-[25vh] p-[5px] bg-white border-2 outline-none"></textarea>
+        </div>
+        <div>
+            <h3>Preeti</h3>
+            <textarea id="preeti" class="w-full min-w-[400px] min-h-[25vh] p-[5px] bg-white border-2"
+                disabled></textarea>
+        </div>
     </div>
 </body>
 
