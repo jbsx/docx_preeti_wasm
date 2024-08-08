@@ -51,7 +51,7 @@ init().then(async () => {
       download_el.textContent = "Download converted file";
 
       download_el.classList.add(
-        ..."flex justify-center items-center text-center w-[20vw] h-20 bg-blue-200 border-2 rounded-xl border-blue-400 hover:bg-blue-300".split(
+        ..."p-2 flex justify-center items-center text-center w-[20vw] h-20 bg-blue-200 border-2 rounded-xl border-blue-400 hover:bg-blue-300".split(
           " ",
         ),
       );
@@ -61,16 +61,26 @@ init().then(async () => {
   };
 
   document.getElementById("file_select").addEventListener("change", (e) => {
-    handle_conversion(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file.name.substr(-5) != ".docx") {
+      alert("only .docx files are supported");
+    } else {
+      handle_conversion(file);
+    }
   });
 
   document.getElementById("input-label").addEventListener("dragover", (e) => {
     e.preventDefault();
   });
 
-  document.getElementById("input-label").addEventListener("drop", async (e) => {
+  document.getElementById("input-label").addEventListener("drop", (e) => {
     e.preventDefault();
 
-    handle_conversion(e.dataTransfer.files[0]);
+    const file = e.dataTransfer.files[0];
+    if (file.name.substr(-5) != ".docx") {
+      alert("only .docx files are supported");
+    } else {
+      handle_conversion(file);
+    }
   });
 });

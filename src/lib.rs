@@ -80,7 +80,10 @@ fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
                 }
                 writer.write_event(Event::End(e))?;
             }
-            Ok(Event::Eof) => break,
+            Ok(Event::Eof) => {
+                writer.write_event(Event::Eof)?;
+                break;
+            }
             Ok(e) => {
                 writer.write_event(e)?;
             }
@@ -103,7 +106,10 @@ fn convert_xml_string_unicode(input: String) -> Result<Vec<u8>, Box<dyn Error>> 
                 let elem = BytesText::new(&converted);
                 writer.write_event(Event::Text(elem))?;
             }
-            Ok(Event::Eof) => break,
+            Ok(Event::Eof) => {
+                writer.write_event(Event::Eof)?;
+                break;
+            }
             Ok(e) => {
                 writer.write_event(e)?;
             }

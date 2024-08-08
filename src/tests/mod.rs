@@ -119,6 +119,26 @@ mod test_unicode_converter {
         assert_eq!(converted, control);
     }
 
+    #[test]
+    fn temp_test05() {
+        let test_string = "मैले तिमीहरुलाइ श्वास पेनं लाइ प्राणवायु, पिउन लाइ पानी, र बस्न लाइ खुला जमीन प्रदान गरें, आकाश बनेर संधैं संरक्षण गरिरहें तिमीहरुको तिखा लाइ तृप्त गदा गदा म आपै सुकेर चट्टान भएं".to_owned();
+        let control = "d}n] ltdLx?nfO Zjf; k]g+ nfO k|f0fjfo', lkpg nfO kfgL, / a:g nfO v'nf hdLg k|bfg u/]+, cfsfz ag]/ ;+w}+ ;+/If0f ul//x]+ ltdLx?sf] ltvf nfO t[Kt ubf ubf d cfk} ;'s]/ r6\\6fg eP+".to_owned();
+
+        let converted = unicode_to_preeti(test_string);
+
+        assert_eq!(converted, control);
+    }
+
+    #[test]
+    fn temp_test06() {
+        //let test_string = "कहिल्यै".to_owned();
+        //let control = "slxn\\o}".to_owned();
+
+        //let converted = unicode_to_preeti(test_string);
+
+        //assert_eq!(converted, control);
+    }
+
     //#[test]
     //fn temp_test2() {
     //    let test_string = "क्रम".to_owned();
