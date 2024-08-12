@@ -63,9 +63,7 @@ mod test_unicode_converter {
     fn temp_test() {
         let test_string = "ट्रक".to_owned();
         let control = "6«s".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
@@ -73,9 +71,7 @@ mod test_unicode_converter {
     fn temp_test00() {
         let test_string = "स्वस्थ".to_owned();
         let control = ":j:y".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
@@ -83,9 +79,7 @@ mod test_unicode_converter {
     fn temp_test01() {
         let test_string = "सिकिस्त".to_owned();
         let control = "l;ls:t".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
@@ -93,9 +87,7 @@ mod test_unicode_converter {
     fn temp_test02() {
         let test_string = "प्रिय".to_owned();
         let control = "k|lo".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
@@ -103,9 +95,7 @@ mod test_unicode_converter {
     fn temp_test03() {
         let test_string = "प्रिय मानव, मलाइ थाहा छ उता तिमी स्वस्थ छैनौं एता म पनि सिकिस्त बिरामी परेकि छु जताततै गाडी र कलकारखानाको बिषालु धुंवामा रूमलिएका मेरा धड्कनहरु बिस्तारैबिस्तारै अस्पतालका विस्तारामा पुगे उता तिमीहरुको जीवनशैली र मिसावटयुत्त आहारले पटकपटक अस्वस्थ हुनु आजभोलि म निकै चिंतित रहेकी छु आशा विहिन पनि भएकी छु" .to_owned();
         let control = "k|lo dfgj, dnfO yfxf 5 ptf ltdL :j:y 5}gf}+ Ptf d klg l;ls:t la/fdL k/]ls 5' htftt} uf8L / snsf/vfgfsf] laiffn' w'+jfdf ¿dlnPsf d]/f w8\\sgx? la:tf/}la:tf/} c:ktfnsf lj:tf/fdf k'u] ptf ltdLx?sf] hLjgz}nL / ld;fj6o'Q cfxf/n] k6sk6s c:j:y x'g' cfhef]ln d lgs} lr+ltt /x]sL 5' cfzf ljlxg klg ePsL 5'" .to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
@@ -113,9 +103,15 @@ mod test_unicode_converter {
     fn temp_test04() {
         let test_string = "गयौ?".to_owned();
         let control = "uof}<".to_owned();
-
         let converted = unicode_to_preeti(test_string);
+        assert_eq!(converted, control);
+    }
 
+    #[test]
+    fn temp_test06() {
+        let test_string = "प्रभुजीले".to_owned();
+        let control = "k|e'hLn]".to_owned();
+        let converted = unicode_to_preeti(test_string);
         assert_eq!(converted, control);
     }
 
@@ -123,29 +119,23 @@ mod test_unicode_converter {
     fn temp_test05() {
         let test_string = "मैले तिमीहरुलाइ श्वास पेनं लाइ प्राणवायु, पिउन लाइ पानी, र बस्न लाइ खुला जमीन प्रदान गरें, आकाश बनेर संधैं संरक्षण गरिरहें तिमीहरुको तिखा लाइ तृप्त गदा गदा म आपै सुकेर चट्टान भएं".to_owned();
         let control = "d}n] ltdLx?nfO Zjf; k]g+ nfO k|f0fjfo', lkpg nfO kfgL, / a:g nfO v'nf hdLg k|bfg u/]+, cfsfz ag]/ ;+w}+ ;+/If0f ul//x]+ ltdLx?sf] ltvf nfO t[Kt ubf ubf d cfk} ;'s]/ r6\\6fg eP+".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 
     #[test]
-    fn temp_test06() {
-        //let test_string = "कहिल्यै".to_owned();
-        //let control = "slxn\\o}".to_owned();
-
-        //let converted = unicode_to_preeti(test_string);
-
-        //assert_eq!(converted, control);
+    fn test_new_line() {
+        let test_string = "\n".to_owned();
+        let control = "\n".to_owned();
+        let converted = unicode_to_preeti(test_string);
+        assert_eq!(converted, control);
     }
 
     //#[test]
     //fn temp_test2() {
     //    let test_string = "क्रम".to_owned();
     //    let control = "qmd".to_owned();
-
     //    let converted = unicode_to_preeti(test_string);
-
     //    assert_eq!(converted, control);
     //}
 
@@ -153,36 +143,31 @@ mod test_unicode_converter {
     fn temp_test3() {
         let test_string = "खुट्टा".to_owned();
         let control = "v'6\\6f".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
+
     #[test]
     fn post_rules24() {
         let test_string = "जाऊ".to_owned();
         let control = "hfpm".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
+
     #[test]
     fn post_rules25() {
         let test_string = "जाऊँ".to_owned();
         let control = "hfpmF".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
+
     #[test]
     fn post_rules34() {
         let test_string = "जाऔं".to_owned();
         let control = "hfcf}+".to_owned();
-
         let converted = unicode_to_preeti(test_string);
-
         assert_eq!(converted, control);
     }
 }

@@ -20,7 +20,6 @@ extern crate console_error_panic_hook;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Map {
-    pre_rules: Vec<Vec<String>>,
     character_map: HashMap<String, String>,
     post_rules: Vec<Vec<String>>,
 }
@@ -79,32 +78,6 @@ fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
                     is_preeti = false;
                 }
                 writer.write_event(Event::End(e))?;
-            }
-            Ok(Event::Eof) => {
-                writer.write_event(Event::Eof)?;
-                break;
-            }
-            Ok(e) => {
-                writer.write_event(e)?;
-            }
-            Err(e) => panic!("Error at position {}: {:?}", reader.buffer_position(), e),
-        }
-    }
-
-    let converted_file = writer.into_inner().into_inner();
-    return Ok(converted_file);
-}
-
-fn convert_xml_string_unicode(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
-    let mut reader = Reader::from_str(&input);
-    let mut writer = Writer::new(Cursor::new(Vec::new()));
-
-    loop {
-        match reader.read_event() {
-            Ok(Event::Text(e)) => {
-                let converted = unicode_to_preeti(e.unescape()?.to_string());
-                let elem = BytesText::new(&converted);
-                writer.write_event(Event::Text(elem))?;
             }
             Ok(Event::Eof) => {
                 writer.write_event(Event::Eof)?;
@@ -182,16 +155,66 @@ pub fn preeti_to_unicode_docx(input: Vec<u8>) -> Vec<u8> {
     return res;
 }
 
+pub fn normalise_unicode(input: String) -> String {
+    let chars: Vec<char> = input.chars().collect();
+    let mut idx = 0;
+    let mut res = String::new();
+
+    while idx < chars.len() {
+        if idx + 2 < chars.len() {
+            if chars[idx] != 'र' {
+                if chars[idx + 1] == '्' && !" ।,".contains(chars[idx + 2]) {
+                    if chars[idx + 2] != 'र' {
+                        match UNICODE_RULES.character_map.get(&chars[idx].to_string()) {
+                            Some(c) => {
+                                if "wertyuxasdghjkzvn".contains(c) {
+                                    res.push_str(&c.to_uppercase());
+                                    idx += 2;
+                                    continue;
+                                } else if chars[idx] == 'स' {
+                                    res.push(':');
+                                    idx += 2;
+                                    continue;
+                                } else if chars[idx] == 'स' {
+                                    res.push('i');
+                                    idx += 2;
+                                    continue;
+                                }
+                            }
+                            None => {
+                                res.push(chars[idx]);
+                                idx += 1;
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if idx >= 1 && idx + 1 < chars.len() {
+            if chars[idx - 1] != 'र' && chars[idx] == '्' && chars[idx + 1] == 'र' {
+                if !"टठड".contains(chars[idx - 1]) {
+                    res.push('|');
+                    idx += 2;
+                    continue;
+                } else {
+                    res.push('«');
+                    idx += 2;
+                    continue;
+                }
+            }
+        }
+        res.push(chars[idx]);
+        idx += 1;
+    }
+
+    return res.replace("त|", "q");
+}
+
 #[wasm_bindgen]
 pub fn unicode_to_preeti(input: String) -> String {
     //normalise html entities
-    let mut normalised_input: String = decode_html(&input).unwrap_or(input);
-
-    //pre rules
-    for i in &UNICODE_RULES.pre_rules {
-        let re = Regex::new(&i[0]).unwrap();
-        normalised_input = re.replace_all(&normalised_input, &i[1]).to_string();
-    }
+    let normalised_input: String = normalise_unicode(decode_html(&input).unwrap_or(input));
 
     //convert
     let mut res = String::new();
@@ -370,30 +393,64 @@ pub fn unicode_to_preeti(input: String) -> String {
     return res;
 }
 
+// lifted from the `console_log` example
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
 #[wasm_bindgen]
 pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
     let file = Cursor::new(input);
     let mut archive = zip::ZipArchive::new(file).unwrap();
-    let mut streeng_file = String::new();
-    let _ = archive
-        .by_name("word/document.xml")
-        .unwrap()
-        .read_to_string(&mut streeng_file);
-
-    let converted = convert_xml_string_unicode(streeng_file).unwrap();
 
     let buf = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(buf);
     for i in archive.to_owned().file_names() {
         match i {
             "word/document.xml" => {
+                let mut streeng_file = String::new();
+                let _ = archive
+                    .by_name("word/document.xml")
+                    .unwrap()
+                    .read_to_string(&mut streeng_file);
+
                 let _ = writer
                     .start_file(
                         "word/document.xml",
                         zip::write::SimpleFileOptions::default(),
                     )
                     .unwrap();
-                let _ = writer.write(&converted);
+
+                let mut xml_reader = Reader::from_str(&streeng_file);
+                loop {
+                    let mut xml_writer = Writer::new(Cursor::new(Vec::new()));
+                    match xml_reader.read_event() {
+                        Ok(Event::Text(e)) => {
+                            let unescaped = e.unescape().unwrap().to_string();
+                            let converted = unicode_to_preeti(unescaped);
+                            let elem = BytesText::new(&converted);
+                            xml_writer.write_event(Event::Text(elem)).unwrap();
+                            let _ = writer.write(&xml_writer.into_inner().into_inner());
+                        }
+                        Ok(Event::Eof) => {
+                            xml_writer.write_event(Event::Eof).unwrap();
+                            let _ = writer.write(&xml_writer.into_inner().into_inner());
+                            break;
+                        }
+                        Ok(e) => {
+                            xml_writer.write_event(e).unwrap();
+                            let _ = writer.write(&xml_writer.into_inner().into_inner());
+                        }
+                        Err(e) => panic!(
+                            "Error at position {}: {:?}",
+                            xml_reader.buffer_position(),
+                            e
+                        ),
+                    }
+                }
+
                 let _ = writer.flush().unwrap();
             }
             _ => {
@@ -402,11 +459,10 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
             }
         }
     }
-    let res = writer
+
+    return writer
         .finish_into_readable()
         .unwrap()
         .into_inner()
         .into_inner();
-
-    return res;
 }
