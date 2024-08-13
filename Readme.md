@@ -1,7 +1,7 @@
 ### TODO
-fix unicode_to_preeti
-Optimize unicode_to_preeti
-Concurrency
+- [ ] Fix symbol conversion from unicode to preeti
+- [ ] Progress bar
+- [ ] Concurrency
 
 #### Build wasm
 ```
