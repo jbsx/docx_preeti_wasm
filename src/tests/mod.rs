@@ -131,6 +131,14 @@ mod test_unicode_converter {
         assert_eq!(converted, control);
     }
 
+    #[test]
+    fn temp_colon() {
+        let test_string = ":".to_owned();
+        let control = "M".to_owned();
+        let converted = unicode_to_preeti(test_string);
+        assert_eq!(converted, control);
+    }
+
     //#[test]
     //fn temp_test2() {
     //    let test_string = "क्रम".to_owned();

@@ -161,6 +161,12 @@ pub fn normalise_unicode(input: String) -> String {
     let mut res = String::new();
 
     while idx < chars.len() {
+        if chars[idx] == ':' {
+            res.push('M');
+            idx += 1;
+            continue;
+        }
+
         if idx + 2 < chars.len() {
             if chars[idx] != 'र' {
                 if chars[idx + 1] == '्' && !" ।,".contains(chars[idx + 2]) {
