@@ -430,24 +430,20 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
                     .unwrap();
 
                 let mut xml_reader = Reader::from_str(&streeng_file);
+                let mut xml_writer = Writer::new(Cursor::new(Vec::new()));
                 loop {
-                    let mut xml_writer = Writer::new(Cursor::new(Vec::new()));
                     match xml_reader.read_event() {
                         Ok(Event::Text(e)) => {
-                            let unescaped = e.unescape().unwrap().to_string();
-                            let converted = unicode_to_preeti(unescaped);
+                            let converted = unicode_to_preeti(e.unescape().unwrap().to_string());
                             let elem = BytesText::new(&converted);
                             xml_writer.write_event(Event::Text(elem)).unwrap();
-                            let _ = writer.write(&xml_writer.into_inner().into_inner());
                         }
                         Ok(Event::Eof) => {
                             xml_writer.write_event(Event::Eof).unwrap();
-                            let _ = writer.write(&xml_writer.into_inner().into_inner());
                             break;
                         }
                         Ok(e) => {
                             xml_writer.write_event(e).unwrap();
-                            let _ = writer.write(&xml_writer.into_inner().into_inner());
                         }
                         Err(e) => panic!(
                             "Error at position {}: {:?}",
@@ -457,6 +453,7 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
                     }
                 }
 
+                let _ = writer.write_all(&xml_writer.into_inner().into_inner());
                 let _ = writer.flush().unwrap();
             }
             _ => {
