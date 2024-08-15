@@ -6,26 +6,49 @@
     <title>Preeti to Unicode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="app.js"></script>
+    <link rel="stylesheet" href="../style.css">
 </head>
 
-<body class="w-full flex flex-col items-center bg-slate-100 gap-8">
+<body class="w-screen h-full flex flex-col items-center gap-8 bg-stone-50">
     <div id="container" class="flex flex-col items-center">
         <h1 class="m-5 text-3xl text-center">Convert .docx from Preeti to Unicode (UTF-8)</h1>
         <div id="input-label" class="flex flex-col items-center gap-4">
             <label for="file_select"
-                class="bg-blue-200 w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
-                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-blue-400 hover:opacity-[85%]">
+                class="w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
+                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-[var(--main-clr)] hover:opacity-[85%]">
                 <input id="file_select" type="file" hidden
                     accept="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
                 <div class="flex flex-col justify-center items-center gap-8">
                     <img src="../upload_icon.png" class="w-[20%] pointer-events-none" />
-                    <p class="text-center">
-                        Drag and drop or click here <br /> to convert .docx file
-                    </p>
+                    <div class="text-center flex flex-col">
+                        <span class="text-lg">
+                            Drop your .docx file here!
+                        </span>
+                        <span class="text-sm">
+                            or click to select file
+                        </span>
+                    </div>
                 </div>
             </label>
+            <p class="text-sm">Note: May take some time, especially on underpowered systems </p>
         </div>
-        <img id="loading" src="../loading.svg" hidden />
+
+        <div class="lds-ring hidden" id="loading">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <!-- Download button -->
+        <a class="pushable hidden" id="btn">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">
+                Download
+            </span>
+        </a>
+
     </div>
     <div class="flex flex-wrap justify-center w-[90vw] gap-2">
         <div>
@@ -38,6 +61,22 @@
             <textarea id="unicode"
                 class="w-max min-w-[400px] min-h-[25vh] p-[5px] bg-white border-2 outline-none"></textarea>
         </div>
+    </div>
+    <div class="flex flex-wrap gap-4">
+        <a class="pushable" href="/">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">
+                Home
+            </span>
+        </a>
+        <a class="pushable" href="/unicode_to_preeti/">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">
+                Unicode to Preeti
+            </span>
+        </a>
     </div>
 </body>
 

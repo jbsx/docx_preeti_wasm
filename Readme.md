@@ -1,6 +1,7 @@
 ### TODO
 - [X] Fix unicode to preeti corruption
 - [X] Fix symbol conversion from unicode to preeti
+- [ ] Change font to preeti
 - [ ] Progress bar
 - [ ] Concurrency
 

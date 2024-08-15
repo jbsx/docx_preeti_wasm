@@ -5,19 +5,28 @@
     <meta charset="utf-8" />
     <title>Preeti Conversion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="p-5 flex flex-col items-center bg-slate-100 gap-8">
+<body class="p-5 h-screen flex flex-col justify-center items-center gap-20 text-center bg-stone-50">
     <h1 class="text-3xl">
-        Convert word files between Preeti and Unicode(UTF-8)
+        Convert Microsoft Word files (.docx) between Preeti and Unicode
     </h1>
-    <div class="flex flex-col gap-8">
-        <a href="preeti_to_unicode/" class="flex justify-center items-center w-[20vw] h-20 
-                bg-blue-200 border-2 rounded-xl border-blue-400 cursor-pointer 
-                hover:bg-blue-300 text-center">Preeti to Unicode</a>
-        <a href="unicode_to_preeti/" class="flex justify-center items-center w-[20vw] h-20
-                bg-blue-200 border-2 rounded-xl border-blue-400 cursor-pointer
-                hover:bg-blue-300 text-center">Unicode to Preeti</a>
+    <div class="flex flex-wrap gap-24">
+        <a class="pushable" href="preeti_to_unicode/">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">
+                Preeti to Unicode
+            </span>
+        </a>
+        <a class="pushable" href="unicode_to_preeti/">
+            <span class="shadow"></span>
+            <span class="edge"></span>
+            <span class="front">
+                Unicode to Preeti
+            </span>
+        </a>
     </div>
 </body>
 

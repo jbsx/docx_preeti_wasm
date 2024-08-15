@@ -34,9 +34,8 @@ init().then(async () => {
 
   let handle_conversion = (file) => {
     document.getElementById("input-label").classList.add("hidden");
-    let loading = document.createElement("img");
-    loading.src = "../loading.svg";
-    document.getElementById("container").append(loading);
+    let loading = document.getElementById("loading");
+    loading.classList.remove("hidden");
 
     worker.postMessage(file);
 
@@ -44,19 +43,14 @@ init().then(async () => {
       let res = new File([res_buf.data], file.name, {
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       });
+
       let url = URL.createObjectURL(res);
-      let download_el = document.createElement("a");
+      let download_el = document.getElementById("btn");
       download_el.href = url;
       download_el.download = res.name;
-      download_el.textContent = "Download converted file";
 
-      download_el.classList.add(
-        ..."p-2 flex justify-center items-center text-center w-[20vw] h-20 bg-blue-200 border-2 rounded-xl border-blue-400 hover:bg-blue-300".split(
-          " ",
-        ),
-      );
-      loading.remove();
-      document.getElementById("container").append(download_el);
+      download_el.classList.remove("hidden");
+      loading.classList.add("hidden");
     });
   };
 
