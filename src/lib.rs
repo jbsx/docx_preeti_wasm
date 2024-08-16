@@ -431,12 +431,39 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
 
                 let mut xml_reader = Reader::from_str(&streeng_file);
                 let mut xml_writer = Writer::new(Cursor::new(Vec::new()));
+
+                let mut convert = false;
                 loop {
                     match xml_reader.read_event() {
                         Ok(Event::Text(e)) => {
-                            let converted = unicode_to_preeti(e.unescape().unwrap().to_string());
-                            let elem = BytesText::new(&converted);
-                            xml_writer.write_event(Event::Text(elem)).unwrap();
+                            if convert {
+                                let converted =
+                                    unicode_to_preeti(e.unescape().unwrap().to_string());
+                                let elem = BytesText::new(&converted);
+                                xml_writer.write_event(Event::Text(elem)).unwrap();
+                                convert = false;
+                            } else {
+                                xml_writer.write_event(Event::Text(e)).unwrap();
+                            }
+                        }
+                        Ok(Event::Empty(e)) => {
+                            if &e.name() == &QName(b"w:rFonts") {
+                                let e_buf = &e.to_vec();
+                                let mut fonts = String::from_utf8_lossy(e_buf).to_string();
+
+                                if let Some(from) = fonts.find("w:ascii=\"") {
+                                    let to = fonts[from + 9..].find('"').unwrap();
+                                    fonts.replace_range(from + 9..from + 9 + to, "Preeti");
+                                }
+
+                                convert = true;
+
+                                xml_writer
+                                    .write_event(Event::Empty(BytesStart::new(fonts)))
+                                    .unwrap();
+                            } else {
+                                xml_writer.write_event(Event::Empty(e)).unwrap();
+                            }
                         }
                         Ok(Event::Eof) => {
                             xml_writer.write_event(Event::Eof).unwrap();
