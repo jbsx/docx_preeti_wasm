@@ -441,7 +441,6 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
                                     unicode_to_preeti(e.unescape().unwrap().to_string());
                                 let elem = BytesText::new(&converted);
                                 xml_writer.write_event(Event::Text(elem)).unwrap();
-                                convert = false;
                             } else {
                                 xml_writer.write_event(Event::Text(e)).unwrap();
                             }
@@ -464,6 +463,12 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
                             } else {
                                 xml_writer.write_event(Event::Empty(e)).unwrap();
                             }
+                        }
+                        Ok(Event::End(e)) => {
+                            if &e.name() == &QName(b"w:r") || &e.name() == &QName(b"w:pPr") {
+                                convert = false;
+                            }
+                            xml_writer.write_event(Event::End(e)).unwrap();
                         }
                         Ok(Event::Eof) => {
                             xml_writer.write_event(Event::Eof).unwrap();
