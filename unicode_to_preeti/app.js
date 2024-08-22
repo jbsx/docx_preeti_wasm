@@ -8,6 +8,13 @@ init().then(async () => {
 
   let worker = new Worker("worker.js", { type: "module" });
 
+  let load_percent = new SharedArrayBuffer(1);
+
+  setInterval(() => {
+    let dom = document.getElementById("loadpercent");
+    dom.innerText = `${new Uint8Array(load_percent)[0]}%`;
+  }, 300);
+
   unicode.addEventListener("keyup", (e) => {
     let val = e.target.value;
     let res = val
@@ -37,7 +44,7 @@ init().then(async () => {
     let loading = document.getElementById("loading");
     loading.classList.remove("hidden");
 
-    worker.postMessage(file);
+    worker.postMessage({ file, load_percent });
 
     worker.addEventListener("message", (res_buf) => {
       let res = new File([res_buf.data], file.name, {

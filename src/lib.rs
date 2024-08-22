@@ -8,6 +8,7 @@ use wasm_bindgen::prelude::*;
 
 use anyhow::Result;
 use htmlescape::decode_html;
+use js_sys::{SharedArrayBuffer, Uint8Array};
 use once_cell::sync::Lazy;
 use quick_xml::events::{BytesStart, BytesText, Event};
 use quick_xml::name::QName;
@@ -37,13 +38,31 @@ pub fn init() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 }
 
-fn convert_xml_string_preeti(input: String) -> Result<Vec<u8>, Box<dyn Error>> {
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+fn convert_xml_string_preeti(
+    input: String,
+    loading: SharedArrayBuffer,
+) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut reader = Reader::from_str(&input);
     let mut writer = Writer::new(Cursor::new(Vec::new()));
 
     let mut is_preeti = false;
 
+    let mut completion = 0;
+    let load_percent = Uint8Array::new(&loading);
     loop {
+        //progress bar
+        let curr = (reader.buffer_position() * 100) / input.len();
+        if curr != completion {
+            completion = curr;
+            load_percent.set_index(0, curr as u8);
+        }
+
         match reader.read_event() {
             Ok(Event::Text(e)) => {
                 if is_preeti {
@@ -115,7 +134,7 @@ pub fn preeti_to_unicode(input: String) -> String {
 }
 
 #[wasm_bindgen]
-pub fn preeti_to_unicode_docx(input: Vec<u8>) -> Vec<u8> {
+pub fn preeti_to_unicode_docx(input: Vec<u8>, loading: SharedArrayBuffer) -> Vec<u8> {
     let file = Cursor::new(input);
     let mut archive = zip::ZipArchive::new(file).unwrap();
     let mut streeng_file = String::new();
@@ -124,7 +143,7 @@ pub fn preeti_to_unicode_docx(input: Vec<u8>) -> Vec<u8> {
         .unwrap()
         .read_to_string(&mut streeng_file);
 
-    let converted = convert_xml_string_preeti(streeng_file).unwrap();
+    let converted = convert_xml_string_preeti(streeng_file, loading).unwrap();
 
     let buf = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(buf);
@@ -399,20 +418,16 @@ pub fn unicode_to_preeti(input: String) -> String {
     return res;
 }
 
-// lifted from the `console_log` example
 #[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
+pub fn unicode_to_preeti_docx(input: Vec<u8>, loading: SharedArrayBuffer) -> Vec<u8> {
     let file = Cursor::new(input);
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
     let buf = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(buf);
+
+    let load_percent = Uint8Array::new(&loading);
+
     for i in archive.to_owned().file_names() {
         match i {
             "word/document.xml" => {
@@ -433,7 +448,15 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>) -> Vec<u8> {
                 let mut xml_writer = Writer::new(Cursor::new(Vec::new()));
 
                 let mut convert = false;
+
+                let mut load_prev = 0;
                 loop {
+                    let curr = (xml_reader.buffer_position() * 100) / streeng_file.len();
+                    if curr != load_prev {
+                        load_percent.set_index(0, curr as u8);
+                        load_prev = curr;
+                    }
+
                     match xml_reader.read_event() {
                         Ok(Event::Text(e)) => {
                             if convert {

@@ -4,8 +4,9 @@ init();
 
 addEventListener("message", async (e) => {
   try {
-    let arr_buf = new Uint8Array(await e.data.arrayBuffer());
-    let res_buf = new Uint8Array(unicode_to_preeti_docx(arr_buf));
+    let { file, load_percent } = e.data;
+    let arr_buf = new Uint8Array(await file.arrayBuffer());
+    let res_buf = new Uint8Array(unicode_to_preeti_docx(arr_buf, load_percent));
     postMessage(res_buf);
   } catch (e) {
     //TODO
