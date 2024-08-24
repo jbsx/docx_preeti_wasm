@@ -1,7 +1,3 @@
-### TODO
-- [ ] Progress bar
-- [ ] Concurrency
-
 #### Build wasm
 ```
 wasm-pack build --target web
