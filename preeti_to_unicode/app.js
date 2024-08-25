@@ -8,12 +8,14 @@ init().then(async () => {
 
   let worker = new Worker("./worker.js", { type: "module" });
 
-  let load_percent = new SharedArrayBuffer(1);
+  let load_percent = crossOriginIsolated ? new SharedArrayBuffer(1) : null;
 
-  setInterval(() => {
-    let dom = document.getElementById("loadpercent");
-    dom.innerText = `${new Uint8Array(load_percent)[0]}%`;
-  }, 300);
+  if (load_percent) {
+    setInterval(() => {
+      let dom = document.getElementById("loadpercent");
+      dom.innerText = `${new Uint8Array(load_percent)[0]}%`;
+    }, 300);
+  }
 
   preeti.addEventListener("keyup", (e) => {
     let val = e.target.value;
@@ -44,7 +46,7 @@ init().then(async () => {
     let loading = document.getElementById("loading");
     loading.classList.remove("hidden");
 
-    worker.postMessage({ file, loading: load_percent });
+    worker.postMessage({ file, load_percent });
 
     worker.addEventListener("message", (res_buf) => {
       let res = new File([res_buf.data], file.name, {
@@ -54,7 +56,7 @@ init().then(async () => {
       let url = URL.createObjectURL(res);
       let download_el = document.getElementById("btn");
       download_el.href = url;
-      download_el.download = res.name;
+      download_el.download = `${res.name.slice(0, -5)}_unicode.docx`;
 
       download_el.classList.remove("hidden");
       loading.classList.add("hidden");

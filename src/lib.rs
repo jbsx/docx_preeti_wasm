@@ -46,7 +46,7 @@ extern "C" {
 
 fn convert_xml_string_preeti(
     input: String,
-    loading: SharedArrayBuffer,
+    loading: Option<SharedArrayBuffer>,
 ) -> Result<Vec<u8>, Box<dyn Error>> {
     let mut reader = Reader::from_str(&input);
     let mut writer = Writer::new(Cursor::new(Vec::new()));
@@ -54,13 +54,15 @@ fn convert_xml_string_preeti(
     let mut is_preeti = false;
 
     let mut completion = 0;
-    let load_percent = Uint8Array::new(&loading);
     loop {
         //progress bar
         let curr = (reader.buffer_position() * 100) / input.len();
         if curr != completion {
             completion = curr;
-            load_percent.set_index(0, curr as u8);
+            if let Some(s) = &loading {
+                let load_percent = Uint8Array::new(s);
+                load_percent.set_index(0, curr as u8);
+            }
         }
 
         match reader.read_event() {
@@ -134,7 +136,7 @@ pub fn preeti_to_unicode(input: String) -> String {
 }
 
 #[wasm_bindgen]
-pub fn preeti_to_unicode_docx(input: Vec<u8>, loading: SharedArrayBuffer) -> Vec<u8> {
+pub fn preeti_to_unicode_docx(input: Vec<u8>, loading: Option<SharedArrayBuffer>) -> Vec<u8> {
     let file = Cursor::new(input);
     let mut archive = zip::ZipArchive::new(file).unwrap();
     let mut streeng_file = String::new();
@@ -419,14 +421,12 @@ pub fn unicode_to_preeti(input: String) -> String {
 }
 
 #[wasm_bindgen]
-pub fn unicode_to_preeti_docx(input: Vec<u8>, loading: SharedArrayBuffer) -> Vec<u8> {
+pub fn unicode_to_preeti_docx(input: Vec<u8>, loading: Option<SharedArrayBuffer>) -> Vec<u8> {
     let file = Cursor::new(input);
     let mut archive = zip::ZipArchive::new(file).unwrap();
 
     let buf = Cursor::new(Vec::new());
     let mut writer = zip::ZipWriter::new(buf);
-
-    let load_percent = Uint8Array::new(&loading);
 
     for i in archive.to_owned().file_names() {
         match i {
@@ -451,10 +451,13 @@ pub fn unicode_to_preeti_docx(input: Vec<u8>, loading: SharedArrayBuffer) -> Vec
 
                 let mut load_prev = 0;
                 loop {
-                    let curr = (xml_reader.buffer_position() * 100) / streeng_file.len();
-                    if curr != load_prev {
-                        load_percent.set_index(0, curr as u8);
-                        load_prev = curr;
+                    if let Some(s) = &loading {
+                        let load_percent = Uint8Array::new(s);
+                        let curr = (xml_reader.buffer_position() * 100) / streeng_file.len();
+                        if curr != load_prev {
+                            load_percent.set_index(0, curr as u8);
+                            load_prev = curr;
+                        }
                     }
 
                     match xml_reader.read_event() {

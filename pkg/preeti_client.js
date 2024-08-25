@@ -137,6 +137,10 @@ function passArray8ToWasm0(arg, malloc) {
     return ptr;
 }
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
+
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -152,7 +156,7 @@ function getArrayU8FromWasm0(ptr, len) {
 }
 /**
 * @param {Uint8Array} input
-* @param {SharedArrayBuffer} loading
+* @param {SharedArrayBuffer | undefined} [loading]
 * @returns {Uint8Array}
 */
 export function preeti_to_unicode_docx(input, loading) {
@@ -160,7 +164,7 @@ export function preeti_to_unicode_docx(input, loading) {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        wasm.preeti_to_unicode_docx(retptr, ptr0, len0, addHeapObject(loading));
+        wasm.preeti_to_unicode_docx(retptr, ptr0, len0, isLikeNone(loading) ? 0 : addHeapObject(loading));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var v2 = getArrayU8FromWasm0(r0, r1).slice();
@@ -196,7 +200,7 @@ export function unicode_to_preeti(input) {
 
 /**
 * @param {Uint8Array} input
-* @param {SharedArrayBuffer} loading
+* @param {SharedArrayBuffer | undefined} [loading]
 * @returns {Uint8Array}
 */
 export function unicode_to_preeti_docx(input, loading) {
@@ -204,7 +208,7 @@ export function unicode_to_preeti_docx(input, loading) {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        wasm.unicode_to_preeti_docx(retptr, ptr0, len0, addHeapObject(loading));
+        wasm.unicode_to_preeti_docx(retptr, ptr0, len0, isLikeNone(loading) ? 0 : addHeapObject(loading));
         var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
         var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
         var v2 = getArrayU8FromWasm0(r0, r1).slice();

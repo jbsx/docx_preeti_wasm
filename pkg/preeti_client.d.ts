@@ -10,10 +10,10 @@ export function init(): void;
 export function preeti_to_unicode(input: string): string;
 /**
 * @param {Uint8Array} input
-* @param {SharedArrayBuffer} loading
+* @param {SharedArrayBuffer | undefined} [loading]
 * @returns {Uint8Array}
 */
-export function preeti_to_unicode_docx(input: Uint8Array, loading: SharedArrayBuffer): Uint8Array;
+export function preeti_to_unicode_docx(input: Uint8Array, loading?: SharedArrayBuffer): Uint8Array;
 /**
 * @param {string} input
 * @returns {string}
@@ -21,10 +21,10 @@ export function preeti_to_unicode_docx(input: Uint8Array, loading: SharedArrayBu
 export function unicode_to_preeti(input: string): string;
 /**
 * @param {Uint8Array} input
-* @param {SharedArrayBuffer} loading
+* @param {SharedArrayBuffer | undefined} [loading]
 * @returns {Uint8Array}
 */
-export function unicode_to_preeti_docx(input: Uint8Array, loading: SharedArrayBuffer): Uint8Array;
+export function unicode_to_preeti_docx(input: Uint8Array, loading?: SharedArrayBuffer): Uint8Array;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
