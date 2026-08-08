@@ -279,10 +279,7 @@ mod test_unicode_converter {
 
     #[test]
     fn digits() {
-        assert_eq!(
-            unicode_to_preeti("१२३४५६७८९०".to_owned()),
-            "!@#$%^&*()"
-        );
+        assert_eq!(unicode_to_preeti("१२३४५६७८९०".to_owned()), "!@#$%^&*()");
     }
 
     #[test]
@@ -330,21 +327,33 @@ mod test_unicode_converter {
         assert_eq!(unicode_to_preeti("उद्देश्य".to_owned()), "pb\\b]Zo");
     }
 
-    // BUG: unicode_to_preeti doubles the trailing vowel in the र्+vowel reph
-    // branch (src/lib.rs ~325/350 advances idx by 3 but emits the vowel, so it
-    // is emitted again). Correct Preeti is "b'of]{wg" (verified: that string
-    // round-trips to दुर्योधन). Our output "b'of]{f]wg" corrupts to दुर्याेेधन.
+    // Reph spot A: र् + consonant + matra (ो). The reph branch advanced idx by
+    // 3 after consuming 4 chars, re-emitting the matra. Correct output verified
+    // against the npttf2utf oracle (0.3.7 map_to_preeti).
     #[test]
-    #[ignore]
     fn duryodhan() {
         assert_eq!(unicode_to_preeti("दुर्योधन".to_owned()), "b'of]{wg");
     }
 
-    // Known gap: unicode.json has no mapping for the nukta (़) back to Preeti's
-    // Þ. unicode_to_preeti currently leaves ़ raw in the output. Ignored until
-    // the map is fixed.
+    // Reph spot B: र् + consonant + ि. Same off-by-one class as spot A; the ि
+    // matra is re-emitted (here as a spurious extra "l"). Verified via oracle.
     #[test]
-    #[ignore]
+    fn harshhit() {
+        assert_eq!(unicode_to_preeti("हर्षित".to_owned()), "xlif{t");
+    }
+
+    // Reph spot C: र् + consonant with no following matra. The fallback branch
+    // advanced idx by 2 after consuming 3 chars, re-emitting the consonant.
+    // Verified via oracle.
+    #[test]
+    fn karmachari() {
+        assert_eq!(unicode_to_preeti("कर्मचारी".to_owned()), "sd{rf/L");
+    }
+
+    // nukta (़): unicode.json now maps it back to Preeti's Þ. The forward
+    // direction (preeti_to_unicode Þ->़) is already covered by nukta_ghazal;
+    // the gazal round-trip below locks both directions together.
+    #[test]
     fn nukta_reverse() {
         assert_eq!(unicode_to_preeti("ग़ज़ल".to_owned()), "uÞhÞn");
     }
@@ -503,5 +512,10 @@ mod test_round_trip {
     #[test]
     fn sanrakshan() {
         roundtrip("संरक्षण", ";+/If0f");
+    }
+
+    #[test]
+    fn gazal() {
+        roundtrip("ग़ज़ल", "uÞhÞn");
     }
 }

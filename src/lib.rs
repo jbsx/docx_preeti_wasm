@@ -202,10 +202,6 @@ pub fn normalise_unicode(input: String) -> String {
                                     res.push(':');
                                     idx += 2;
                                     continue;
-                                } else if chars[idx] == 'स' {
-                                    res.push('i');
-                                    idx += 2;
-                                    continue;
                                 }
                             }
                             None => {
@@ -322,7 +318,7 @@ pub fn unicode_to_preeti(input: String) -> String {
                                     {
                                         Some(p3) => {
                                             res.push_str(&format!("{}{}{{", p2, p3));
-                                            idx += 3;
+                                            idx += 4;
                                             continue;
                                         }
                                         None => {
@@ -347,7 +343,7 @@ pub fn unicode_to_preeti(input: String) -> String {
                                     {
                                         Some(p3) => {
                                             res.push_str(&format!("{}{}{{", p3, p2));
-                                            idx += 3;
+                                            idx += 4;
                                             continue;
                                         }
                                         None => {
@@ -368,7 +364,7 @@ pub fn unicode_to_preeti(input: String) -> String {
                         match UNICODE_RULES.character_map.get(&chars[idx + 2].to_string()) {
                             Some(t) => {
                                 res.push_str(&format!("{}{{", t));
-                                idx += 2;
+                                idx += 3;
                                 continue;
                             }
                             None => {
