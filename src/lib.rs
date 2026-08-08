@@ -33,6 +33,22 @@ static UNICODE_RULES: Lazy<Map> = Lazy::new(|| {
     return serde_json::from_str(std::include_str!("unicode.json")).unwrap();
 });
 
+static PREETI_POST_RULES: Lazy<Vec<(Regex, String)>> = Lazy::new(|| {
+    return PREETI_RULES
+        .post_rules
+        .iter()
+        .map(|i| (Regex::new(&i[0]).unwrap(), i[1].clone()))
+        .collect();
+});
+
+static UNICODE_POST_RULES: Lazy<Vec<(Regex, String)>> = Lazy::new(|| {
+    return UNICODE_RULES
+        .post_rules
+        .iter()
+        .map(|i| (Regex::new(&i[0]).unwrap(), i[1].clone()))
+        .collect();
+});
+
 #[wasm_bindgen]
 pub fn init() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -127,9 +143,8 @@ pub fn preeti_to_unicode(input: String) -> String {
     }
 
     //post rules
-    for i in &PREETI_RULES.post_rules {
-        let re = Regex::new(&i[0]).unwrap();
-        res = re.replace_all(&res, &i[1]).to_string();
+    for (re, replacement) in PREETI_POST_RULES.iter() {
+        res = re.replace_all(&res, replacement).to_string();
     }
 
     return res;
@@ -202,6 +217,10 @@ pub fn normalise_unicode(input: String) -> String {
                                     res.push(':');
                                     idx += 2;
                                     continue;
+                                } else if chars[idx] == 'ष' {
+                                    res.push('i');
+                                    idx += 2;
+                                    continue;
                                 }
                             }
                             None => {
@@ -270,6 +289,11 @@ pub fn unicode_to_preeti(input: String) -> String {
             if idx < chars.len() - 2 {
                 if chars[idx + 2] == 'ि' {
                     if "WERTYUXASDGHJK:ZVN".contains(curr) {
+                        if chars[idx + 1] == 'q' {
+                            res.push_str(&format!("l{}q", curr));
+                            idx += 3;
+                            continue;
+                        }
                         match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()) {
                             Some(t) => {
                                 if t != "q" {
@@ -380,8 +404,8 @@ pub fn unicode_to_preeti(input: String) -> String {
                             if "WERTYUXASDGHJK:ZVNIi".contains(curr) {
                                 match UNICODE_RULES.character_map.get(&chars[idx + 1].to_string()) {
                                     Some(t) => {
-                                        res.push_str(&format!("l{}{}", t, &chars[idx + 2]));
-                                        idx += 3;
+                                        res.push_str(&format!("l{}{}{}", curr, t, &chars[idx + 2]));
+                                        idx += 4;
                                         continue;
                                     }
                                     None => {
@@ -408,9 +432,8 @@ pub fn unicode_to_preeti(input: String) -> String {
     }
 
     //post rules
-    for i in &UNICODE_RULES.post_rules {
-        let re = Regex::new(&i[0]).unwrap();
-        res = re.replace_all(&res, &i[1]).to_string();
+    for (re, replacement) in UNICODE_POST_RULES.iter() {
+        res = re.replace_all(&res, replacement).to_string();
     }
 
     return res;

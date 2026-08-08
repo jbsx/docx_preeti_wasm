@@ -737,8 +737,7 @@ mod test_u2p_exhaustive {
 mod test_u2p_corpus {
     use crate::{preeti_to_unicode, unicode_to_preeti};
 
-    // Real Nepali words, oracle-verified. Excludes the 3 known-divergent words
-    // (भविष्य — different-but-valid spelling; राष्ट्रिय/अन्तर्राष्ट्रिय — see test_known_bugs).
+    // Real Nepali words, oracle-verified.
     const CASES: &[(&str, &str)] = &[
         ("नेपाल", "g]kfn"),
         ("नेपाली", "g]kfnL"),
@@ -863,30 +862,77 @@ mod test_u2p_sentences {
         check(&[
             ("ऐ", "P]"),
             ("ऋ", "C"),
-            ("भविष्य", "eljif\\o"),
             // ASCII '?' is deliberately remapped to '<' (unicode.json).
             ("तिमीलाई कस्तो छ?", "ltdLnfO{ s:tf] 5<"),
         ]);
     }
 }
 
-// Documented, not-yet-fixed bugs. The ष्ट्रि conjunct (ष + ् + ट + ् + र + ि)
-// misplaces the ि matra and breaks round-trip. Expected values are oracle +
-// round-trip verified. Fix requires deeper reph/complex-conjunct work.
+// Regression tests for the ष-conjunct and conjunct+्र+ि ि-placement fixes.
+// Half-ष is the Preeti glyph 'i'; normalise_unicode marks ष् as 'i', and the
+// conjunct+ि branches emit the ि ('l') before the whole conjunct.
 #[cfg(test)]
-mod test_known_bugs {
-    use crate::unicode_to_preeti;
+mod test_conjunct_regressions {
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    const CASES: &[(&str, &str)] = &[
+        // ष-led pairs: ष् collapses to half-form 'i'
+        ("ष्क", "is"),
+        ("ष्कि", "ils"),
+        ("ष्ट", "i6"),
+        ("ष्टि", "il6"),
+        ("ष्ण", "i0f"),
+        ("ष्प", "ik"),
+        ("ष्य", "io"),
+        // ष-led triples (्र conjuncts)
+        ("ष्क्र", "is|"),
+        ("ष्ट्र", "i6«"),
+        // ष-led triples + ि: l leads the whole conjunct
+        ("ष्क्रि", "lis|"),
+        ("ष्ट्रि", "li6«"),
+        ("ष्त्रि", "ilq"),
+        // marker-led triples + ि
+        ("क्क्रि", "lSs|"),
+        ("क्त्रि", "lSq"),
+        ("क्श्रि", "lS>"),
+        ("क्ट्रि", "lS6«"),
+        ("क्ष्क", "Is"),
+        ("क्ष्णि", "Il0f"),
+        // real words
+        ("राष्ट्र", "/fi6«"),
+        ("राष्ट्रिय", "/fli6«o"),
+        ("अन्तर्राष्ट्रिय", "cGt/f{li6«o"),
+        ("कृष्ण", "s[i0f"),
+        ("विष्णु", "lji0f'"),
+        ("भविष्य", "eljio"),
+        ("निष्ठा", "lgi7f"),
+        ("प्रतिष्ठा", "k|lti7f"),
+        ("बहिष्कार", "alxisf/"),
+        ("परिष्कार", "kl/isf/"),
+        ("अष्ट", "ci6"),
+        ("शिष्य", "lzio"),
+        ("विषय", "ljifo"),
+        ("उष्ण", "pi0f"),
+    ];
 
     #[test]
-    #[ignore = "BUG: ष्ट्रि conjunct — ि misplaced; ours=/fif\\6«lo, expected=/fli6«o"]
-    fn rastriya() {
-        assert_eq!(unicode_to_preeti("राष्ट्रिय".to_string()), "/fli6«o");
+    fn unicode_to_preeti_matches_oracle() {
+        for (uni, preeti) in CASES {
+            assert_eq!(
+                unicode_to_preeti(uni.to_string()),
+                *preeti,
+                "unicode_to_preeti({:?})",
+                uni
+            );
+        }
     }
 
     #[test]
-    #[ignore = "BUG: ष्ट्रि conjunct — ि misplaced; ours=cGt/f{if\\6«lo, expected=cGt/f{li6«o"]
-    fn antarrastriya() {
-        assert_eq!(unicode_to_preeti("अन्तर्राष्ट्रिय".to_string()), "cGt/f{li6«o");
+    fn round_trip_identity() {
+        for (uni, _) in CASES {
+            let rt = preeti_to_unicode(unicode_to_preeti(uni.to_string()));
+            assert_eq!(&rt, uni, "round-trip({:?}) gave {:?}", uni, rt);
+        }
     }
 }
 
@@ -969,5 +1015,80 @@ mod test_edge_cases {
             unicode_to_preeti("मिति २०८० साल".to_string()),
             "ldlt @)*) ;fn"
         );
+    }
+}
+
+// Exhaustive round-trip property tests: every conjunct combined with every
+// matra must survive unicode -> preeti -> unicode unchanged. This is
+// oracle-independent and guards against regressions in conjunct/matra logic.
+#[cfg(test)]
+mod test_round_trip_property {
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    const CONSONANTS: &[char] = &[
+        'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', 'ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द',
+        'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह',
+    ];
+    const MATRAS: &[char] = &['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ', 'ं', 'ँ'];
+
+    // Known-lossy case, oracle-verified: in legacy Preeti "6[" (ट + ृ-sign)
+    // is visually the ट्ट conjunct, so टृ does not round-trip by design.
+    // unicode_to_preeti("टृ") == "6[" and preeti_to_unicode("6[") == "ट्ट"
+    // both match the oracle. Any input containing टृ is exempt from
+    // round-trip identity.
+    #[test]
+    fn ta_rra_is_lossy_by_design() {
+        assert_eq!(unicode_to_preeti("टृ".to_string()), "6[");
+        assert_eq!(preeti_to_unicode("6[".to_string()), "ट्ट");
+    }
+
+    fn assert_round_trip(s: String) {
+        if s.contains("टृ") {
+            return;
+        }
+        let rt = preeti_to_unicode(unicode_to_preeti(s.clone()));
+        assert_eq!(rt, s, "round-trip failed for {:?}", s);
+    }
+
+    #[test]
+    fn consonant_with_matras() {
+        for &c in CONSONANTS {
+            assert_round_trip(c.to_string());
+            for &m in MATRAS {
+                assert_round_trip(format!("{}{}", c, m));
+            }
+        }
+    }
+
+    #[test]
+    fn conjunct_pairs_with_matras() {
+        for &c1 in CONSONANTS {
+            for &c2 in CONSONANTS {
+                assert_round_trip(format!("{}्{}", c1, c2));
+                for &m in MATRAS {
+                    assert_round_trip(format!("{}्{}{}", c1, c2, m));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn ra_triples_with_i_matra() {
+        for &c1 in CONSONANTS {
+            for &c2 in CONSONANTS {
+                assert_round_trip(format!("{}्{}्र", c1, c2));
+                assert_round_trip(format!("{}्{}्रि", c1, c2));
+            }
+        }
+    }
+
+    #[test]
+    fn reph_with_matras() {
+        for &c in CONSONANTS {
+            assert_round_trip(format!("र्{}", c));
+            for &m in MATRAS {
+                assert_round_trip(format!("र्{}{}", c, m));
+            }
+        }
     }
 }
