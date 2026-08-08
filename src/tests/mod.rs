@@ -1025,11 +1025,11 @@ mod test_edge_cases {
 mod test_round_trip_property {
     use crate::{preeti_to_unicode, unicode_to_preeti};
 
-    const CONSONANTS: &[char] = &[
+    pub const CONSONANTS: &[char] = &[
         'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', 'ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ', 'द',
         'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह',
     ];
-    const MATRAS: &[char] = &['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ', 'ं', 'ँ'];
+    pub const MATRAS: &[char] = &['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ', 'ं', 'ँ'];
 
     // Known-lossy case, oracle-verified: in legacy Preeti "6[" (ट + ृ-sign)
     // is visually the ट्ट conjunct, so टृ does not round-trip by design.
@@ -1089,6 +1089,305 @@ mod test_round_trip_property {
             for &m in MATRAS {
                 assert_round_trip(format!("र्{}{}", c, m));
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_docx {
+    use crate::{convert_docx, Direction};
+    use std::io::{Cursor, Read, Write};
+
+    fn make_docx(document_xml: &str) -> Vec<u8> {
+        let buf = Cursor::new(Vec::new());
+        let mut writer = zip::ZipWriter::new(buf);
+        writer
+            .start_file(
+                "word/document.xml",
+                zip::write::SimpleFileOptions::default(),
+            )
+            .unwrap();
+        writer.write_all(document_xml.as_bytes()).unwrap();
+        writer
+            .start_file("word/styles.xml", zip::write::SimpleFileOptions::default())
+            .unwrap();
+        writer.write_all(b"<w:styles/>").unwrap();
+        writer.finish().unwrap().into_inner()
+    }
+
+    fn read_document_xml(docx: &[u8]) -> String {
+        let mut archive = zip::ZipArchive::new(Cursor::new(docx.to_vec())).unwrap();
+        let mut s = String::new();
+        archive
+            .by_name("word/document.xml")
+            .unwrap()
+            .read_to_string(&mut s)
+            .unwrap();
+        s
+    }
+
+    const PREETI_DOC: &str = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:p><w:r><w:rPr><w:rFonts w:ascii="Preeti" w:hAnsi="Preeti"/></w:rPr><w:t>eljio</w:t></w:r><w:r><w:rPr><w:rFonts w:ascii="Arial"/></w:rPr><w:t>hello</w:t></w:r></w:p>"#;
+
+    #[test]
+    fn converts_preeti_runs_and_swaps_font() {
+        let out = convert_docx(make_docx(PREETI_DOC), None, Direction::PreetiToUnicode).unwrap();
+        let xml = read_document_xml(&out);
+        assert!(xml.contains("भविष्य"), "{xml}");
+        assert!(!xml.contains("eljio"), "{xml}");
+        assert!(!xml.contains(r#"w:ascii="Preeti""#), "{xml}");
+        assert!(xml.contains(r#"w:ascii="Arial""#), "{xml}");
+        assert!(xml.contains("hello"), "{xml}");
+        let mut archive = zip::ZipArchive::new(Cursor::new(out)).unwrap();
+        assert!(archive.by_name("word/styles.xml").is_ok());
+    }
+
+    #[test]
+    fn unicode_to_preeti_converts_runs_and_swaps_font() {
+        const UNICODE_DOC: &str =
+            r#"<w:p><w:r><w:rPr><w:rFonts w:ascii="Arial"/></w:rPr><w:t>भविष्य</w:t></w:r></w:p>"#;
+        let out = convert_docx(make_docx(UNICODE_DOC), None, Direction::UnicodeToPreeti).unwrap();
+        let xml = read_document_xml(&out);
+        assert!(xml.contains("eljio"), "{xml}");
+        assert!(xml.contains(r#"w:ascii="Preeti""#), "{xml}");
+    }
+
+    #[test]
+    fn docx_round_trip() {
+        let unicode_docx =
+            convert_docx(make_docx(PREETI_DOC), None, Direction::PreetiToUnicode).unwrap();
+        let back = convert_docx(unicode_docx, None, Direction::UnicodeToPreeti).unwrap();
+        let xml = read_document_xml(&back);
+        assert!(xml.contains("eljio"), "{xml}");
+        assert!(xml.contains(r#"w:ascii="Preeti""#), "{xml}");
+    }
+
+    #[test]
+    fn garbage_input_returns_error_instead_of_panicking() {
+        assert!(convert_docx(vec![0, 1, 2, 3], None, Direction::PreetiToUnicode).is_err());
+        assert!(convert_docx(vec![0, 1, 2, 3], None, Direction::UnicodeToPreeti).is_err());
+        assert!(convert_docx(Vec::new(), None, Direction::PreetiToUnicode).is_err());
+    }
+
+    #[test]
+    fn missing_document_xml_returns_error() {
+        let buf = Cursor::new(Vec::new());
+        let mut writer = zip::ZipWriter::new(buf);
+        writer
+            .start_file("word/styles.xml", zip::write::SimpleFileOptions::default())
+            .unwrap();
+        writer.write_all(b"<w:styles/>").unwrap();
+        let docx = writer.finish().unwrap().into_inner();
+        assert!(convert_docx(docx.clone(), None, Direction::PreetiToUnicode).is_err());
+        assert!(convert_docx(docx, None, Direction::UnicodeToPreeti).is_err());
+    }
+
+    #[test]
+    fn malformed_xml_returns_error() {
+        let docx = make_docx("<w:p");
+        assert!(convert_docx(docx.clone(), None, Direction::PreetiToUnicode).is_err());
+        assert!(convert_docx(docx, None, Direction::UnicodeToPreeti).is_err());
+    }
+}
+
+#[cfg(test)]
+mod test_golden_oracle {
+    // Golden snapshot of npttf2utf oracle outputs for unicode_to_preeti.
+    // Regenerate with /tmp/opencode/gen_golden.py, excluding documented
+    // oracle limitations (devanagari passthrough of ऐ ऋ ः ऽ ॐ ॥, the र्त्रि
+    // oracle bug) and our deliberate ? -> < remap.
+    use crate::unicode_to_preeti;
+
+    #[test]
+    fn matches_oracle_golden_snapshot() {
+        let cases: std::collections::HashMap<String, String> =
+            serde_json::from_str(std::include_str!("golden_u2p.json")).unwrap();
+        let mut failures = Vec::new();
+        for (input, expected) in &cases {
+            let actual = unicode_to_preeti(input.clone());
+            if actual != *expected {
+                failures.push(format!(
+                    "{:?}: expected {:?}, got {:?}",
+                    input, expected, actual
+                ));
+            }
+        }
+        assert!(
+            failures.is_empty(),
+            "{} failures:\n{}",
+            failures.len(),
+            failures[..failures.len().min(20)].join("\n")
+        );
+    }
+}
+
+#[cfg(test)]
+mod test_reverse_round_trip_property {
+    use super::test_round_trip_property::{CONSONANTS, MATRAS};
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    // The app's primary direction is Preeti -> Unicode. For every generated
+    // Preeti string (the image of unicode_to_preeti), converting to Unicode
+    // and back must be stable.
+    fn assert_reverse_stable(s: String) {
+        // टृ is lossy by design: its Preeti encoding "6[" is visually the
+        // ट्ट conjunct, so the Unicode side of the reverse trip differs.
+        if s.contains("टृ") {
+            return;
+        }
+        let preeti = unicode_to_preeti(s.clone());
+        let back = unicode_to_preeti(preeti_to_unicode(preeti.clone()));
+        assert_eq!(back, preeti, "reverse round-trip unstable for {:?}", s);
+    }
+
+    #[test]
+    fn consonant_with_matras() {
+        for &c in CONSONANTS {
+            assert_reverse_stable(c.to_string());
+            for &m in MATRAS {
+                assert_reverse_stable(format!("{}{}", c, m));
+            }
+        }
+    }
+
+    #[test]
+    fn conjunct_pairs_with_matras() {
+        for &c1 in CONSONANTS {
+            for &c2 in CONSONANTS {
+                assert_reverse_stable(format!("{}्{}", c1, c2));
+                for &m in MATRAS {
+                    assert_reverse_stable(format!("{}्{}{}", c1, c2, m));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn ra_triples() {
+        for &c1 in CONSONANTS {
+            for &c2 in CONSONANTS {
+                assert_reverse_stable(format!("{}्{}्र", c1, c2));
+                assert_reverse_stable(format!("{}्{}्रि", c1, c2));
+            }
+        }
+    }
+
+    #[test]
+    fn reph_with_matras() {
+        for &c in CONSONANTS {
+            assert_reverse_stable(format!("र्{}", c));
+            for &m in MATRAS {
+                assert_reverse_stable(format!("र्{}{}", c, m));
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_extended_property {
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    fn assert_round_trip(s: String) {
+        if s.contains("टृ") {
+            return;
+        }
+        let rt = preeti_to_unicode(unicode_to_preeti(s.clone()));
+        assert_eq!(rt, s, "round-trip failed for {:?}", s);
+    }
+
+    const NUKTA: &[&str] = &["क़", "ख़", "ग़", "ज़", "ड़", "ढ़", "फ़", "य़"];
+
+    #[test]
+    fn nukta_consonants_with_matras() {
+        const MATRAS: &[char] = &['ा', 'ि', 'ी', 'ु', 'ू', 'ृ', 'े', 'ै', 'ो', 'ौ', 'ं', 'ँ'];
+        for &c in NUKTA {
+            assert_round_trip(c.to_string());
+            for &m in MATRAS {
+                assert_round_trip(format!("{}{}", c, m));
+            }
+        }
+    }
+
+    #[test]
+    fn digits_and_symbols() {
+        for ch in "०१२३४५६७८९।॥ॐ॰₹".chars() {
+            assert_round_trip(ch.to_string());
+        }
+        assert_round_trip("२०८१ साल।".to_string());
+    }
+
+    #[test]
+    fn zwj_conjuncts() {
+        const CONSONANTS: &[char] = &[
+            'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', 'ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ',
+            'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह',
+        ];
+        for &c1 in CONSONANTS {
+            for &c2 in CONSONANTS {
+                assert_round_trip(format!("{}्\u{200d}{}", c1, c2));
+            }
+        }
+        assert_round_trip("क्ष्\u{200d}त्र".to_string());
+        assert_round_trip("क्ष्\u{200d}त्रि".to_string());
+        assert_round_trip("ष्\u{200d}य".to_string());
+        assert_round_trip("ष्\u{200d}ट्रि".to_string());
+    }
+
+    #[test]
+    fn four_consonant_conjuncts() {
+        const CONSONANTS: &[char] = &[
+            'क', 'ख', 'ग', 'घ', 'ङ', 'च', 'छ', 'ज', 'झ', 'ञ', 'ट', 'ठ', 'ड', 'ढ', 'ण', 'त', 'थ',
+            'द', 'ध', 'न', 'प', 'फ', 'ब', 'भ', 'म', 'य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह',
+        ];
+        for &c in CONSONANTS {
+            assert_round_trip(format!("{}्त्र", c));
+            assert_round_trip(format!("{}्त्रि", c));
+            assert_round_trip(format!("{}्ष्ट्र", c));
+        }
+        assert_round_trip("र्त्त्रिय".to_string());
+    }
+}
+
+#[cfg(test)]
+mod test_fuzz_no_panic {
+    use crate::{normalise_unicode, preeti_to_unicode, unicode_to_preeti};
+
+    // Deterministic LCG so failures are reproducible without external crates.
+    struct Rng(u64);
+    impl Rng {
+        fn next(&mut self) -> u64 {
+            self.0 = self
+                .0
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            self.0 >> 33
+        }
+    }
+
+    #[test]
+    fn random_strings_never_panic() {
+        let pool: Vec<char> = "कखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहअआइईउऊऋएऐओऔािीुूृेैोौंँः्ऀँॐ।॥०१२३४५६७८९\u{200d}\u{200c} ?<>\\|«/{}[]\"'~abcXYZ \n\t"
+            .chars()
+            .collect();
+        let mut rng = Rng(0x12345678);
+        for _ in 0..20_000 {
+            let len = (rng.next() % 40) as usize;
+            let s: String = (0..len)
+                .map(|_| pool[(rng.next() as usize) % pool.len()])
+                .collect();
+            let p = unicode_to_preeti(s.clone());
+            let _ = preeti_to_unicode(p);
+            let _ = preeti_to_unicode(s.clone());
+            let _ = normalise_unicode(s);
+        }
+        // arbitrary BMP soup
+        for _ in 0..5_000 {
+            let len = (rng.next() % 30) as usize;
+            let s: String = (0..len)
+                .map(|_| char::from_u32((rng.next() % 0x2FFF) as u32 + 0x20).unwrap_or('x'))
+                .collect();
+            let p = unicode_to_preeti(s.clone());
+            let _ = preeti_to_unicode(p);
         }
     }
 }

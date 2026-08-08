@@ -8,8 +8,7 @@ addEventListener("message", async (e) => {
     let arr_buf = new Uint8Array(await file.arrayBuffer());
     let res_buf = new Uint8Array(preeti_to_unicode_docx(arr_buf, load_percent));
     postMessage(res_buf);
-  } catch (e) {
-    //TODO
-    console.log(e);
+  } catch (err) {
+    postMessage({ error: String(err) });
   }
 });

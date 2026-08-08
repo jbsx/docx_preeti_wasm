@@ -49,6 +49,13 @@ init().then(async () => {
     worker.postMessage({ file, load_percent });
 
     worker.addEventListener("message", (res_buf) => {
+      if (res_buf.data.error) {
+        alert(`conversion failed: ${res_buf.data.error}`);
+        loading.classList.add("hidden");
+        document.getElementById("input-label").classList.remove("hidden");
+        return;
+      }
+
       let res = new File([res_buf.data], file.name, {
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       });
