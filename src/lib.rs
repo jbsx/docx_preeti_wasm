@@ -289,7 +289,7 @@ pub fn unicode_to_preeti(input: String) -> String {
                                 } else {
                                     res.push_str(&format!("l{}{}", curr, chars[idx + 1]));
                                 }
-                                idx += 2;
+                                idx += 3;
                                 continue;
                             }
                             None => {

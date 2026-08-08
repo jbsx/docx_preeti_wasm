@@ -519,3 +519,455 @@ mod test_round_trip {
         roundtrip("ग़ज़ल", "uÞhÞn");
     }
 }
+
+// =============================================================================
+// Comprehensive, oracle-verified coverage (npttf2utf 0.3.7 `map_to_preeti`).
+// Tables were cross-checked against the oracle (319/325 matched). Expected
+// values come from the oracle except where the oracle itself is incomplete
+// (ऐ, ऋ are left raw by the oracle) — those use our converter's output,
+// verified by round-trip.
+// =============================================================================
+
+#[cfg(test)]
+mod test_u2p_exhaustive {
+    use crate::unicode_to_preeti;
+
+    fn check(cases: &[(&str, &str)]) {
+        for (i, (input, expected)) in cases.iter().enumerate() {
+            assert_eq!(
+                unicode_to_preeti(input.to_string()),
+                *expected,
+                "case #{} input {:?}: expected {:?}",
+                i,
+                input,
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn vowels() {
+        check(&[
+            ("अ", "c"),
+            ("आ", "cf"),
+            ("इ", "O"),
+            ("ई", "O{"),
+            ("उ", "p"),
+            ("ऊ", "pm"),
+            ("ए", "P"),
+            // ऐ and ऋ: oracle leaves them raw; these are our (round-trip-verified) outputs.
+            ("ऐ", "P]"),
+            ("ओ", "cf]"),
+            ("औ", "cf}"),
+            ("ऋ", "C"),
+        ]);
+    }
+
+    #[test]
+    fn consonants() {
+        check(&[
+            ("क", "s"),
+            ("ख", "v"),
+            ("ग", "u"),
+            ("घ", "3"),
+            ("ङ", "ª"),
+            ("च", "r"),
+            ("छ", "5"),
+            ("ज", "h"),
+            ("झ", "´"),
+            ("ञ", "`"),
+            ("ट", "6"),
+            ("ठ", "7"),
+            ("ड", "8"),
+            ("ढ", "9"),
+            ("ण", "0f"),
+            ("त", "t"),
+            ("थ", "y"),
+            ("द", "b"),
+            ("ध", "w"),
+            ("न", "g"),
+            ("प", "k"),
+            ("फ", "km"),
+            ("ब", "a"),
+            ("भ", "e"),
+            ("म", "d"),
+            ("य", "o"),
+            ("र", "/"),
+            ("ल", "n"),
+            ("व", "j"),
+            ("श", "z"),
+            ("ष", "if"),
+            ("स", ";"),
+            ("ह", "x"),
+        ]);
+    }
+
+    #[test]
+    fn matras_on_ka() {
+        check(&[
+            ("क", "s"),
+            ("का", "sf"),
+            ("कि", "ls"),
+            ("की", "sL"),
+            ("कु", "s'"),
+            ("कू", "s\""),
+            ("के", "s]"),
+            ("कै", "s}"),
+            ("को", "sf]"),
+            ("कौ", "sf}"),
+            ("कृ", "s["),
+            ("कं", "s+"),
+            ("कँ", "sF"),
+            ("कः", "sः"),
+        ]);
+    }
+
+    #[test]
+    fn digits() {
+        check(&[
+            ("०", ")"),
+            ("१", "!"),
+            ("२", "@"),
+            ("३", "#"),
+            ("४", "$"),
+            ("५", "%"),
+            ("६", "^"),
+            ("७", "&"),
+            ("८", "*"),
+            ("९", "("),
+        ]);
+    }
+
+    #[test]
+    fn conjunct_re() {
+        check(&[
+            ("क्र", "s|"),
+            ("ख्र", "v|"),
+            ("ग्र", "u|"),
+            ("घ्र", "3|"),
+            ("च्र", "r|"),
+            ("ज्र", "h|"),
+            ("ट्र", "6«"),
+            ("ठ्र", "7«"),
+            ("ड्र", "8«"),
+            ("ढ्र", "9|"),
+            ("त्र", "q"),
+            ("थ्र", "y|"),
+            ("द्र", "b|"),
+            ("ध्र", "w|"),
+            ("न्र", "g|"),
+            ("प्र", "k|"),
+            ("फ्र", "km|"),
+            ("ब्र", "a|"),
+            ("भ्र", "e|"),
+            ("म्र", "d|"),
+            ("य्र", "o|"),
+            ("ल्र", "n|"),
+            ("व्र", "j|"),
+            ("श्र", ">"),
+            ("ष्र", "if|"),
+            ("स्र", ";|"),
+            ("ह्र", "x|"),
+        ]);
+    }
+
+    #[test]
+    fn special_conjuncts() {
+        check(&[
+            ("क्ष", "If"),
+            ("ज्ञ", "1"),
+            ("श्र", ">"),
+            ("ह्व", "Xj"),
+            ("द्ध", "4"),
+            ("त्त", "Q"),
+            ("न्न", "Gg"),
+            ("द्द", "b\\b"),
+            ("ङ्ग", "ª\\u"),
+            ("ङ्क", "ª\\s"),
+            ("ट्ट", "6\\6"),
+            ("ठ्ठ", "7\\7"),
+            ("द्य", "b\\o"),
+            ("द्र", "b|"),
+            ("द्म", "b\\d"),
+        ]);
+    }
+
+    // Reph (र् + consonant) across all three code spots:
+    //   spot A = र् + C + matra (ा/ो/ी…), spot B = र् + C + ि, spot C = र् + C (no matra)
+    #[test]
+    fn reph_matrix() {
+        check(&[
+            // spot C: no matra
+            ("र्क", "/\\s"),
+            ("र्म", "/\\d"),
+            ("र्य", "/\\o"),
+            ("र्ल", "/\\n"),
+            ("र्व", "/\\j"),
+            ("र्स", "/\\;"),
+            ("र्ह", "/\\x"),
+            ("र्त", "/\\t"),
+            ("र्द", "/\\b"),
+            ("र्न", "/\\g"),
+            // spot A: र् + C + matra
+            ("र्का", "sf{"),
+            ("र्की", "sL{"),
+            ("र्को", "sf]{"),
+            ("र्मा", "df{"),
+            ("र्मी", "dL{"),
+            ("र्मो", "df]{"),
+            ("र्या", "of{"),
+            ("र्यो", "of]{"),
+            ("र्वो", "jf]{"),
+            ("र्हो", "xf]{"),
+            // spot B: र् + C + ि
+            ("र्कि", "ls{"),
+            ("र्मि", "ld{"),
+            ("र्यि", "lo{"),
+            ("र्वि", "lj{"),
+            ("र्सि", "l;{"),
+            ("र्हि", "lx{"),
+            ("र्ति", "lt{"),
+            ("र्दि", "lb{"),
+            ("र्नि", "lg{"),
+        ]);
+    }
+}
+
+#[cfg(test)]
+mod test_u2p_corpus {
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    // Real Nepali words, oracle-verified. Excludes the 3 known-divergent words
+    // (भविष्य — different-but-valid spelling; राष्ट्रिय/अन्तर्राष्ट्रिय — see test_known_bugs).
+    const CASES: &[(&str, &str)] = &[
+        ("नेपाल", "g]kfn"),
+        ("नेपाली", "g]kfnL"),
+        ("काठमाडौं", "sf7df8f}+"),
+        ("भाषा", "efiff"),
+        ("संस्कृति", ";+:s[lt"),
+        ("विकास", "ljsf;"),
+        ("शिक्षा", "lzIff"),
+        ("स्वास्थ्य", ":jf:Yo"),
+        ("प्रतिनिधि", "k|ltlglw"),
+        ("वातावरण", "jftfj/0f"),
+        ("उद्योग", "pb\\of]u"),
+        ("कृषि", "s[lif"),
+        ("प्रविधि", "k|ljlw"),
+        ("अनुसन्धान", "cg';Gwfg"),
+        ("सञ्चार", ";~rf/"),
+        ("विज्ञान", "lj1fg"),
+        ("अर्थतन्त्र", "cy{tGq"),
+        ("सरकार", ";/sf/"),
+        ("समाजवादी", ";dfhjfbL"),
+        ("प्रजातन्त्र", "k|hftGq"),
+        ("संविधान", ";+ljwfg"),
+        ("न्यायालय", "Gofofno"),
+        ("कार्यालय", "sfof{no"),
+        ("अस्पताल", "c:ktfn"),
+        ("विश्वविद्यालय", "ljZjljb\\ofno"),
+        ("पुस्तकालय", "k':tsfno"),
+        ("संग्रहालय", ";+u|xfno"),
+        ("विमानस्थल", "ljdfg:yn"),
+        ("रेलमार्ग", "/]ndf/\\u"),
+        ("सडक", ";8s"),
+        ("पुल", "k'n"),
+        ("भवन", "ejg"),
+        ("बैठक", "a}7s"),
+        ("समिति", ";ldlt"),
+        ("आयोजना", "cfof]hgf"),
+        ("त्रिभुवन", "lqe'jg"),
+        ("पृथ्वी", "k[YjL"),
+        ("श्री", ">L"),
+        ("श्रीमती", ">LdtL"),
+        ("जनता", "hgtf"),
+        ("मानव", "dfgj"),
+        ("प्रकृति", "k|s[lt"),
+        ("उर्जा", "phf{"),
+        ("संसार", ";+;f/"),
+        ("आकाश", "cfsfz"),
+        ("जल", "hn"),
+        ("वायु", "jfo'"),
+        ("अग्नि", "clUg"),
+        ("समय", ";do"),
+        ("इतिहास", "Oltxf;"),
+        ("वर्तमान", "jt{dfg"),
+        ("शिक्षक", "lzIfs"),
+        ("विद्यार्थी", "ljb\\ofyL{"),
+        ("कर्मचारी", "sd{rf/L"),
+        ("किसान", "ls;fg"),
+        ("व्यापारी", "Jofkf/L"),
+        ("कलाकार", "snfsf/"),
+        ("लेखक", "n]vs"),
+        ("गायक", "ufos"),
+    ];
+
+    #[test]
+    fn unicode_to_preeti_matches_oracle() {
+        for (i, (u, p)) in CASES.iter().enumerate() {
+            assert_eq!(
+                unicode_to_preeti(u.to_string()),
+                *p,
+                "u2p #{} {:?}: expected {:?}",
+                i,
+                u,
+                p
+            );
+        }
+    }
+
+    #[test]
+    fn round_trip_identity() {
+        for (i, (u, p)) in CASES.iter().enumerate() {
+            assert_eq!(
+                preeti_to_unicode(p.to_string()),
+                *u,
+                "rt #{} preeti {:?}: expected {:?}",
+                i,
+                p,
+                u
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod test_u2p_sentences {
+    use crate::unicode_to_preeti;
+
+    fn check(cases: &[(&str, &str)]) {
+        for (i, (input, expected)) in cases.iter().enumerate() {
+            assert_eq!(
+                unicode_to_preeti(input.to_string()),
+                *expected,
+                "sentence #{} {:?}: expected {:?}",
+                i,
+                input,
+                expected
+            );
+        }
+    }
+
+    #[test]
+    fn oracle_sentences() {
+        check(&[
+            ("नेपाल एक सुन्दर देश हो।", "g]kfn Ps ;'Gb/ b]z xf]."),
+            ("म आज विद्यालय जान्छु।", "d cfh ljb\\ofno hfG5'."),
+            ("हामी सबै नेपाली हौं।", "xfdL ;a} g]kfnL xf}+."),
+        ]);
+    }
+
+    // Cases where the oracle is incomplete/differs and our output is the
+    // round-trip-verified correct one.
+    #[test]
+    fn converter_specific() {
+        check(&[
+            ("ऐ", "P]"),
+            ("ऋ", "C"),
+            ("भविष्य", "eljif\\o"),
+            // ASCII '?' is deliberately remapped to '<' (unicode.json).
+            ("तिमीलाई कस्तो छ?", "ltdLnfO{ s:tf] 5<"),
+        ]);
+    }
+}
+
+// Documented, not-yet-fixed bugs. The ष्ट्रि conjunct (ष + ् + ट + ् + र + ि)
+// misplaces the ि matra and breaks round-trip. Expected values are oracle +
+// round-trip verified. Fix requires deeper reph/complex-conjunct work.
+#[cfg(test)]
+mod test_known_bugs {
+    use crate::unicode_to_preeti;
+
+    #[test]
+    #[ignore = "BUG: ष्ट्रि conjunct — ि misplaced; ours=/fif\\6«lo, expected=/fli6«o"]
+    fn rastriya() {
+        assert_eq!(unicode_to_preeti("राष्ट्रिय".to_string()), "/fli6«o");
+    }
+
+    #[test]
+    #[ignore = "BUG: ष्ट्रि conjunct — ि misplaced; ours=cGt/f{if\\6«lo, expected=cGt/f{li6«o"]
+    fn antarrastriya() {
+        assert_eq!(unicode_to_preeti("अन्तर्राष्ट्रिय".to_string()), "cGt/f{li6«o");
+    }
+}
+
+#[cfg(test)]
+mod test_edge_cases {
+    use crate::{preeti_to_unicode, unicode_to_preeti};
+
+    #[test]
+    fn empty() {
+        assert_eq!(unicode_to_preeti("".to_string()), "");
+        assert_eq!(preeti_to_unicode("".to_string()), "");
+    }
+
+    #[test]
+    fn whitespace_preserved() {
+        let s = "नेपाल  नेपाल\tनेपाल\nनेपाल";
+        assert_eq!(unicode_to_preeti(s.to_string()), s.replace("नेपाल", "g]kfn"));
+    }
+
+    #[test]
+    fn leading_trailing_whitespace() {
+        assert_eq!(unicode_to_preeti("  नेपाल  ".to_string()), "  g]kfn  ");
+        assert_eq!(preeti_to_unicode("  g]kfn  ".to_string()), "  नेपाल  ");
+    }
+
+    #[test]
+    fn mixed_script() {
+        // English letters and Devanagari pass through/convert independently.
+        assert_eq!(
+            unicode_to_preeti("Nepal नेपाल १२३".to_string()),
+            "Nepal g]kfn !@#"
+        );
+    }
+
+    #[test]
+    fn standalone_matras() {
+        // Matras with no base consonant should not panic.
+        assert_eq!(unicode_to_preeti("ा".to_string()), "f");
+        assert_eq!(unicode_to_preeti("ि".to_string()), "l");
+        assert_eq!(unicode_to_preeti("े".to_string()), "]");
+    }
+
+    #[test]
+    fn standalone_halant() {
+        assert_eq!(unicode_to_preeti("्".to_string()), "\\");
+    }
+
+    #[test]
+    fn halant_at_boundaries() {
+        // र् alone (reph with nothing after) must not panic.
+        assert_eq!(unicode_to_preeti("र्".to_string()), "/\\");
+        assert_eq!(unicode_to_preeti("क्".to_string()), "s\\");
+    }
+
+    #[test]
+    fn double_danda_passthrough() {
+        // ॥ has no mapping; passes through unchanged.
+        assert_eq!(unicode_to_preeti("॥".to_string()), "॥");
+    }
+
+    #[test]
+    fn html_entities_u2p() {
+        assert_eq!(unicode_to_preeti("&gt;&lt;".to_string()), "><");
+        assert_eq!(unicode_to_preeti("&amp;".to_string()), "&");
+    }
+
+    #[test]
+    fn long_string_no_panic() {
+        let unit = "नेपाली भाषा सुन्दर छ। ";
+        let input = unit.repeat(500);
+        let out = unicode_to_preeti(input.clone());
+        // Sanity: output is non-empty and converts back.
+        assert!(!out.is_empty());
+        assert_eq!(preeti_to_unicode(out.clone()), input);
+    }
+
+    #[test]
+    fn digits_in_text() {
+        assert_eq!(
+            unicode_to_preeti("मिति २०८० साल".to_string()),
+            "ldlt @)*) ;fn"
+        );
+    }
+}
