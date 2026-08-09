@@ -3,35 +3,47 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Unicode to Preeti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unicode to Preeti - Lipi by Build Together</title>
+    <meta name="description"
+        content="Convert Microsoft Word (.docx) files from Unicode (UTF-8) to Preeti in your browser. Free and no sign-up. By Build Together." />
     <script src="../tailwind.js"></script>
     <script src="../coi-serviceworker.min.js"></script>
     <script type="module" src="app.js"></script>
     <link rel="stylesheet" href="../style.css">
 </head>
 
-<body class="w-screen h-full flex flex-col items-center gap-8 bg-stone-50">
+<body class="min-h-screen w-full flex flex-col items-center gap-8 bg-white p-8">
     <div id="container" class="flex flex-col items-center">
-        <h1 class="m-5 text-3xl text-center">Convert .docx from Unicode (UTF-8) to Preeti</h1>
+        <div class="mb-8 text-center">
+            <h1 class="mb-2 text-4xl font-bold text-gray-900">Unicode to Preeti</h1>
+            <p class="text-lg text-gray-600">Convert your Unicode (UTF-8) .docx file to Preeti</p>
+        </div>
         <div id="input-label" class="flex flex-col items-center gap-4">
             <label for="file_select"
-                class="w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center 
-                    items-center rounded-xl cursor-pointer opacity-[70%] border-dashed border-4 border-[var(--main-clr)] hover:opacity-[85%]">
+                class="w-[30vw] h-[30vh] min-h-[200px] min-w-[400px] flex justify-center
+                    items-center cursor-pointer border-2 border-dashed border-stone-300 bg-white transition-colors duration-200 hover:border-stone-400 hover:bg-stone-50">
                 <input id="file_select" type="file" hidden
                     accept="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-                <div class="flex flex-col justify-center items-center gap-8">
-                    <img src="../upload_icon.png" class="w-[20%] pointer-events-none" />
-                    <div class="text-center flex flex-col">
-                        <span class="text-lg">
-                            Drop your .docx file here!
+                <div class="flex flex-col justify-center items-center gap-6">
+                    <div class="flex h-12 w-12 items-center justify-center bg-stone-100">
+                        <svg class="h-6 w-6 text-stone-600 pointer-events-none" fill="none" stroke="currentColor"
+                            stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6h.1a5 5 0 011 9.9M12 12v9m0-9l-3 3m3-3l3 3" />
+                        </svg>
+                    </div>
+                    <div class="text-center flex flex-col gap-1">
+                        <span class="text-lg font-semibold text-gray-900">
+                            Drop your .docx file here
                         </span>
-                        <span class="text-sm">
-                            or click to select file
+                        <span class="text-sm text-gray-600">
+                            or click to select a file
                         </span>
                     </div>
                 </div>
             </label>
-            <p class="text-sm">Note: May cause unintentional conversion of symbols.</p>
+            <p class="text-sm text-gray-500">Note: May cause unintentional conversion of symbols.</p>
         </div>
 
         <div class="relative hidden" id="loading">
@@ -41,37 +53,37 @@
                 <div></div>
                 <div></div>
             </div>
-            <div class="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" id="loadpercent"></div>
+            <div class="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] text-gray-600"
+                id="loadpercent"></div>
         </div>
 
         <!-- Download button -->
-        <a class="pushable hidden" id="btn">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">
-                Download
-            </span>
+        <a class="hidden mt-6 cursor-pointer border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-stone-50"
+            id="btn">
+            Download converted file
         </a>
 
     </div>
-    <div class="flex flex-wrap justify-center w-[90vw] gap-2">
+    <div class="flex flex-wrap justify-center w-[90vw] gap-6">
         <div>
-            <h3>Unicode</h3>
+            <h3 class="mb-2 text-lg font-semibold text-gray-900">Unicode</h3>
             <textarea id="unicode"
-                class="w-full min-w-[400px] min-h-[25vh] p-[5px] bg-white border-2 outline-none"></textarea>
+                class="w-full min-w-[400px] min-h-[25vh] p-3 bg-white border border-stone-200 outline-none focus:border-stone-400"></textarea>
         </div>
         <div>
-            <h3>Preeti</h3>
-            <textarea id="preeti" class="w-full min-w-[400px] min-h-[25vh] p-[5px] bg-white border-2"></textarea>
+            <h3 class="mb-2 text-lg font-semibold text-gray-900">Preeti</h3>
+            <textarea id="preeti"
+                class="w-full min-w-[400px] min-h-[25vh] p-3 bg-white border border-stone-200 outline-none focus:border-stone-400"></textarea>
         </div>
     </div>
-    <div class="flex flex-wrap gap-4">
-        <a class="pushable" href="../preeti_to_unicode/">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">
-                Preeti to Unicode
-            </span>
+    <div class="flex flex-wrap justify-center gap-4 pb-8">
+        <a class="cursor-pointer border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-stone-50"
+            href="../preeti_to_unicode/">
+            Switch to Preeti to Unicode
+        </a>
+        <a class="cursor-pointer border border-stone-200 bg-white px-6 py-3 text-sm font-semibold text-gray-900 transition-colors duration-200 hover:bg-stone-50"
+            href="../">
+            &larr; Back to Lipi
         </a>
     </div>
 </body>

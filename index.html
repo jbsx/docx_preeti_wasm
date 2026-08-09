@@ -3,30 +3,53 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Preeti Conversion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lipi - Free Preeti &amp; Unicode Converter by Build Together</title>
+    <meta name="description"
+        content="Convert Microsoft Word (.docx) files between Preeti and Unicode in your browser. Free and no sign-up — no uploads, conversion happens locally. By Build Together." />
     <script src="./tailwind.js"></script>
     <link rel="stylesheet" href="./style.css">
 </head>
 
-<body class="p-5 h-screen flex flex-col justify-center items-center gap-20 text-center bg-stone-50">
-    <h1 class="text-3xl">
-        Convert Microsoft Word files (.docx) between Preeti and Unicode
-    </h1>
-    <div class="flex flex-wrap gap-24">
-        <a class="pushable" href="preeti_to_unicode/">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">
-                Preeti to Unicode
-            </span>
-        </a>
-        <a class="pushable" href="unicode_to_preeti/">
-            <span class="shadow"></span>
-            <span class="edge"></span>
-            <span class="front">
-                Unicode to Preeti
-            </span>
-        </a>
+<body class="flex min-h-screen items-center justify-center bg-white p-8">
+    <div class="w-full max-w-4xl">
+        <div class="mb-12 text-center">
+            <h1 class="mb-4 text-4xl font-bold text-gray-900">Lipi</h1>
+            <p class="text-lg text-gray-600">Convert Word documents between Preeti and Unicode</p>
+        </div>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <a href="preeti_to_unicode/"
+                class="group cursor-pointer border border-stone-200 bg-white p-6 transition-colors duration-200 hover:bg-stone-50">
+                <div class="text-center">
+                    <div
+                        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center bg-stone-100 transition-colors group-hover:bg-stone-200">
+                        <svg class="h-6 w-6 text-stone-600" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 7l5 5-5 5" />
+                        </svg>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold text-gray-900">Preeti to Unicode</h3>
+                    <p class="text-sm text-gray-600">Convert legacy Preeti .docx files to Unicode (UTF-8)</p>
+                </div>
+            </a>
+            <a href="unicode_to_preeti/"
+                class="group cursor-pointer border border-stone-200 bg-white p-6 transition-colors duration-200 hover:bg-stone-50">
+                <div class="text-center">
+                    <div
+                        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center bg-stone-100 transition-colors group-hover:bg-stone-200">
+                        <svg class="h-6 w-6 text-stone-600" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 17l-5-5 5-5M18 17l-5-5 5-5" />
+                        </svg>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold text-gray-900">Unicode to Preeti</h3>
+                    <p class="text-sm text-gray-600">Convert Unicode (UTF-8) .docx files back to Preeti</p>
+                </div>
+            </a>
+        </div>
+        <div class="mt-12 text-center">
+            <p class="text-gray-500">Free and no sign-up — conversion runs entirely in your browser</p>
+        </div>
     </div>
 </body>
 
