@@ -4,18 +4,72 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lipi - Free Preeti &amp; Unicode Converter by Build Together</title>
+    <title>Lipi - Free Preeti to Unicode Converter (प्रिति ⇄ युनिकोड)</title>
     <meta name="description"
-        content="Convert Microsoft Word (.docx) files between Preeti and Unicode in your browser. Free and no sign-up — no uploads, conversion happens locally. By Build Together." />
+        content="Free Preeti to Unicode and Unicode to Preeti converter for Nepali text and Word (.docx) files. 100% client-side — your documents never leave your browser. No sign-up. By BuildTogether.ai." />
+    <link rel="canonical" href="https://lipi.buildtogether.ai/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lipi" />
+    <meta property="og:title" content="Lipi - Free Preeti to Unicode Converter" />
+    <meta property="og:description"
+        content="Convert Nepali text and Word (.docx) files between Preeti and Unicode. Free, no sign-up, 100% client-side — your documents never leave your browser." />
+    <meta property="og:url" content="https://lipi.buildtogether.ai/" />
+    <meta property="og:image" content="https://lipi.buildtogether.ai/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lipi - Free Preeti to Unicode Converter" />
+    <meta name="twitter:description"
+        content="Convert Nepali text and Word (.docx) files between Preeti and Unicode. Free, no sign-up, 100% client-side." />
+    <meta name="twitter:image" content="https://lipi.buildtogether.ai/og-image.png" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="./favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <script src="./tailwind.js"></script>
     <link rel="stylesheet" href="./style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebApplication",
+                "name": "Lipi",
+                "alternateName": "लिपि",
+                "url": "https://lipi.buildtogether.ai/",
+                "description": "Free client-side converter between the legacy Preeti font encoding and Unicode (UTF-8) Nepali, for text and Microsoft Word (.docx) files.",
+                "applicationCategory": "UtilitiesApplication",
+                "operatingSystem": "Any (web browser)",
+                "browserRequirements": "Requires JavaScript and WebAssembly",
+                "inLanguage": ["en", "ne"],
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                },
+                "creator": {
+                    "@type": "Organization",
+                    "name": "BuildTogether.ai LTD",
+                    "url": "https://buildtogether.ai/",
+                    "sameAs": [
+                        "https://www.linkedin.com/company/109254324/",
+                        "https://www.instagram.com/buildtogether.ai/",
+                        "https://www.youtube.com/@BuildTogetherAI"
+                    ]
+                }
+            },
+            {
+                "@type": "WebSite",
+                "name": "Lipi",
+                "url": "https://lipi.buildtogether.ai/"
+            }
+        ]
+    }
+    </script>
 </head>
 
 <body class="flex min-h-screen items-center justify-center bg-white p-8">
     <div class="w-full max-w-4xl">
         <div class="mb-12 text-center">
             <h1 class="mb-4 text-4xl font-bold text-gray-900">Lipi</h1>
-            <p class="text-lg text-gray-600">Convert Word documents between Preeti and Unicode</p>
+            <p class="text-lg text-gray-600">Free Preeti to Unicode converter for Nepali text and Word documents</p>
         </div>
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <a href="preeti_to_unicode/"
@@ -49,6 +103,12 @@
         </div>
         <div class="mt-12 text-center">
             <p class="text-gray-500">Free and no sign-up — conversion runs entirely in your browser</p>
+            <p class="mt-4 text-sm text-gray-400">
+                <a href="guide/" class="hover:text-gray-600">About the Preeti font and Unicode &rarr;</a>
+            </p>
+            <p class="mt-2 text-sm text-gray-400">
+                by <a href="https://buildtogether.ai/" class="hover:text-gray-600">BuildTogether.ai</a>
+            </p>
         </div>
     </div>
 </body>

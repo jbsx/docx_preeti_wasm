@@ -1,0 +1,23 @@
+# Lipi
+
+> Lipi (लिपि) is a free, client-side web tool that converts Nepali text and Microsoft Word (.docx) files between the legacy Preeti font encoding and Unicode (UTF-8). All conversion runs locally in the user's browser via WebAssembly — no files or text are ever uploaded to a server, and no sign-up is required.
+
+Lipi is built and maintained by BuildTogether.ai LTD.
+
+## Tools
+
+- [Preeti to Unicode converter](https://lipi.buildtogether.ai/preeti_to_unicode/): Convert legacy Preeti-encoded text and .docx files to Unicode Nepali (UTF-8). Paste text directly or drop a .docx file and download the converted document.
+- [Unicode to Preeti converter](https://lipi.buildtogether.ai/unicode_to_preeti/): Convert Unicode Nepali (UTF-8) text and .docx files back to Preeti encoding. Note: may cause unintentional conversion of some symbols.
+- [Guide: Preeti to Unicode](https://lipi.buildtogether.ai/guide/): Background on the Preeti font, why Unicode matters for Nepali text, and step-by-step usage instructions.
+
+## Key facts
+
+- Free, no sign-up, no account
+- 100% client-side: conversion happens in the browser via WebAssembly; documents and text never leave the user's device
+- Supports both direct text input (paste/type) and Microsoft Word .docx file conversion with a downloadable result
+- The legacy Preeti font is a de-facto standard encoding historically used in Nepali government and publishing; Unicode (UTF-8) is the modern standard required for web, search, and interoperability
+
+## Optional
+
+- [Lipi homepage](https://lipi.buildtogether.ai/)
+- [BuildTogether.ai](https://buildtogether.ai/): The company behind Lipi

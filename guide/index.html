@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preeti to Unicode: The Complete Guide - Lipi</title>
+    <meta name="description"
+        content="What the Preeti font is, why Unicode (युनिकोड) matters for Nepali text, and how to convert Preeti text and Word (.docx) files to Unicode — free, in your browser." />
+    <link rel="canonical" href="https://lipi.buildtogether.ai/guide/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Lipi" />
+    <meta property="og:title" content="Preeti to Unicode: The Complete Guide - Lipi" />
+    <meta property="og:description"
+        content="What the Preeti font is, why Unicode matters for Nepali text, and how to convert Preeti text and Word (.docx) files to Unicode — free, in your browser." />
+    <meta property="og:url" content="https://lipi.buildtogether.ai/guide/" />
+    <meta property="og:image" content="https://lipi.buildtogether.ai/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Preeti to Unicode: The Complete Guide - Lipi" />
+    <meta name="twitter:description"
+        content="What the Preeti font is, why Unicode matters for Nepali text, and how to convert Preeti text and Word (.docx) files to Unicode — free, in your browser." />
+    <meta name="twitter:image" content="https://lipi.buildtogether.ai/og-image.png" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+    <script src="../tailwind.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the Preeti font?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Preeti is a legacy, non-Unicode font encoding for the Nepali language. It became the de-facto standard for typing Nepali in government offices, newspapers, and publishing before Unicode adoption. Text typed in Preeti is stored as ordinary ASCII bytes and only renders as Devanagari when the Preeti font is installed, which makes it unsearchable and non-portable."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Why should I convert Preeti to Unicode?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Unicode (UTF-8) is the international standard for text. Unicode Nepali (युनिकोड) is searchable, accessible, copy-paste friendly, and renders correctly on every modern device without installing special fonts. Preeti text pasted without the font installed appears as gibberish Latin characters. Websites, email, databases, and search engines all require Unicode."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How do I convert Preeti text to Unicode online?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Open the Lipi Preeti to Unicode converter, paste your Preeti text into the input box, and the Unicode output appears instantly. To convert a Word document, drag your .docx file onto the drop zone and download the converted file. It is free and requires no sign-up."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is it safe to convert confidential documents with Lipi?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Lipi runs entirely in your browser using WebAssembly. Your text and .docx files are never uploaded to any server — conversion happens locally on your device, and the tool works offline once the page has loaded."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I convert Unicode back to Preeti?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Lipi's Unicode to Preeti converter converts Unicode Nepali text and .docx files back to Preeti encoding, for organizations that still require the legacy font. Note that the reverse direction may cause unintentional conversion of some symbols, so review the output."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What file formats does Lipi support?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Lipi converts pasted or typed text directly, and Microsoft Word .docx files (Word Open XML). Legacy .doc files, PDFs, and plain .txt files are not supported as file inputs — for those, paste the text directly instead."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is Lipi free?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Lipi is completely free with no sign-up and no account. It is built and maintained by BuildTogether.ai."
+                }
+            }
+        ]
+    }
+    </script>
+</head>
+
+<body class="min-h-screen bg-white">
+    <main class="mx-auto w-full max-w-3xl px-8 py-12">
+        <nav class="mb-8 text-sm text-gray-500">
+            <a href="../" class="hover:text-gray-900">&larr; Lipi home</a>
+        </nav>
+
+        <h1 class="mb-4 text-4xl font-bold text-gray-900">Preeti to Unicode: the complete guide</h1>
+        <p class="mb-10 text-lg text-gray-600">
+            Everything you need to know about the legacy Preeti font, why Unicode
+            (<span lang="ne">युनिकोड</span>) is the standard for Nepali text today, and how to convert
+            your documents — free, without uploading anything.
+        </p>
+
+        <section class="mb-10">
+            <h2 class="mb-3 text-2xl font-semibold text-gray-900">What is the Preeti font?</h2>
+            <p class="mb-3 text-gray-700">
+                Preeti is a legacy font encoding for Nepali that became the de-facto standard in government
+                offices, newspapers, and publishing houses before Unicode was widely adopted. Like other legacy
+                Nepali fonts (Kantipur, Sagarmatha, Himalaya), Preeti does not store text the way modern
+                systems do: it stores ordinary ASCII bytes that only look like Devanagari when displayed with
+                the Preeti font installed.
+            </p>
+            <p class="text-gray-700">
+                That is why Preeti text pasted into a website, email, or phone without the font turns into
+                gibberish Latin characters like <code>g]kfn</code>. The underlying bytes were never Nepali —
+                the font was only pretending.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="mb-3 text-2xl font-semibold text-gray-900">Why Unicode matters</h2>
+            <p class="mb-3 text-gray-700">
+                Unicode (UTF-8) is the international standard for text. Devanagari has a dedicated Unicode
+                block, so Unicode Nepali (<span lang="ne">नेपाली युनिकोड</span>) works everywhere: search
+                engines can index it, screen readers can read it, and it renders on any modern device with no
+                special fonts installed.
+            </p>
+            <p class="text-gray-700">
+                Converting archives of Preeti documents to Unicode (<span lang="ne">प्रितिदेखि
+                युनिकोड</span>) is usually the first step in digitizing Nepali government records, newspaper
+                archives, and publishing back-catalogs.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="mb-3 text-2xl font-semibold text-gray-900">How to convert with Lipi</h2>
+            <h3 class="mb-2 text-lg font-semibold text-gray-900">Preeti to Unicode</h3>
+            <ol class="mb-4 list-decimal pl-6 text-gray-700">
+                <li>Open the <a href="../preeti_to_unicode/" class="underline hover:text-gray-900">Preeti to
+                        Unicode converter</a>.</li>
+                <li>Paste Preeti text into the input box — the Unicode output appears instantly — or drag a
+                    .docx file onto the drop zone.</li>
+                <li>For files, click <em>Download converted file</em> to save the Unicode .docx.</li>
+            </ol>
+            <h3 class="mb-2 text-lg font-semibold text-gray-900">Unicode to Preeti</h3>
+            <ol class="list-decimal pl-6 text-gray-700">
+                <li>Open the <a href="../unicode_to_preeti/" class="underline hover:text-gray-900">Unicode to
+                        Preeti converter</a>.</li>
+                <li>Paste Unicode text or drop a Unicode .docx file.</li>
+                <li>Review the output — the reverse direction can unintentionally convert some symbols — then
+                    download the result.</li>
+            </ol>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="mb-3 text-2xl font-semibold text-gray-900">Privacy: your documents never leave your
+                device</h2>
+            <p class="text-gray-700">
+                Lipi converts everything locally in your browser using WebAssembly. There is no upload step —
+                your text and files are never transmitted to any server, and the converter works offline once
+                the page has loaded. This makes it safe for confidential government and legal documents.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="mb-4 text-2xl font-semibold text-gray-900">Frequently asked questions</h2>
+            <div class="flex flex-col gap-6">
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">What is the Preeti font?</h3>
+                    <p class="text-gray-700">A legacy, non-Unicode font encoding for Nepali, historically the
+                        de-facto standard in Nepali government and publishing. Preeti text is stored as ASCII
+                        bytes and only renders as Devanagari with the font installed.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">Why should I convert Preeti to Unicode?</h3>
+                    <p class="text-gray-700">Unicode is searchable, accessible, and works on every modern
+                        device without special fonts. Websites, email, databases, and search engines all
+                        require it.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">How do I convert Preeti text to Unicode
+                        online?</h3>
+                    <p class="text-gray-700">Open the <a href="../preeti_to_unicode/"
+                            class="underline hover:text-gray-900">Preeti to Unicode converter</a>, paste your
+                        text, and copy the output. For Word documents, drop the .docx file and download the
+                        result. Free, no sign-up.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">Is it safe for confidential documents?</h3>
+                    <p class="text-gray-700">Yes. Conversion happens entirely in your browser — nothing is
+                        uploaded to any server.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">Can I convert Unicode back to Preeti?</h3>
+                    <p class="text-gray-700">Yes, with the <a href="../unicode_to_preeti/"
+                            class="underline hover:text-gray-900">Unicode to Preeti converter</a>. Review the
+                        output, as some symbols may convert unintentionally.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">What file formats are supported?</h3>
+                    <p class="text-gray-700">Direct text input and Microsoft Word .docx files. Legacy .doc,
+                        PDF, and .txt are not supported as file inputs — paste the text instead.</p>
+                </div>
+                <div>
+                    <h3 class="mb-1 font-semibold text-gray-900">Is Lipi free?</h3>
+                    <p class="text-gray-700">Yes — completely free, no account, no sign-up. Built by <a
+                            href="https://buildtogether.ai/"
+                            class="underline hover:text-gray-900">BuildTogether.ai</a>.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="border-t border-stone-200 pt-6 text-sm text-gray-500">
+            <a href="../" class="hover:text-gray-900">Lipi</a> — free Preeti &harr; Unicode converter, by
+            <a href="https://buildtogether.ai/" class="hover:text-gray-900">BuildTogether.ai</a>
+        </footer>
+    </main>
+</body>
+
+</html>
